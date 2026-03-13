@@ -1,0 +1,21 @@
+baseURL = "https://yourusername.github.io/knowledge-planet/"
+languageCode = "zh-CN"
+title = "知识星球"
+theme = ""
+defaultContentLanguage = "zh-cn"
+hasCJKLanguage = true
+enableRobotsTXT = true
+
+[params]
+  author = "Lee"
+  description = "个人知识管理星球 - 记录、分享、成长"
+
+[languages.zh-cn]
+  languageName = "中文"
+  weight = 1
+
+[outputs]
+  home = ["HTML"]
+
+# 禁用不需要的功能
+disableKinds = ["RSS", "taxonomy", "term", "sitemap"]
