@@ -1,0 +1,116 @@
+{{ define "main" }}
+<!-- 英雄区域 -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">{{ .Site.Title }}</h1>
+        <p class="hero-subtitle">{{ .Site.Params.description }}</p>
+        <div class="hero-actions">
+            <a href="/posts/" class="btn btn-primary">开始阅读</a>
+            <a href="/about/" class="btn btn-outline">了解更多</a>
+        </div>
+    </div>
+</section>
+
+<!-- 特色文章 -->
+<section class="featured-posts">
+    <h2 class="section-title">最新文章 <i class="fas fa-newspaper"></i></h2>
+    <div class="posts-grid">
+        {{ range first 6 (where .Site.RegularPages "Type" "posts") }}
+        <article class="post-card">
+            <div class="post-card-header">
+                {{ if .Params.categories }}
+                <div class="post-category">
+                    {{ range first 1 .Params.categories }}
+                    <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}/">{{ . }}</a>
+                    {{ end }}
+                </div>
+                {{ end }}
+                <h3 class="post-title">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </h3>
+                <div class="post-meta">
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        <i class="far fa-calendar"></i> {{ .Date.Format "2006-01-02" }}
+                    </time>
+                    <span class="reading-time">
+                        <i class="far fa-clock"></i> {{ .ReadingTime }}分钟阅读
+                    </span>
+                </div>
+            </div>
+            
+            <div class="post-card-body">
+                {{ if .Summary }}
+                    <p>{{ .Summary | truncate 150 }}</p>
+                {{ else }}
+                    <p>{{ .Plain | truncate 150 }}</p>
+                {{ end }}
+            </div>
+            
+            <div class="post-card-footer">
+                <a href="{{ .RelPermalink }}" class="read-more">
+                    阅读全文 <i class="fas fa-arrow-right"></i>
+                </a>
+                <div class="post-actions">
+                    <button class="btn-like" data-post-id="{{ .File.UniqueID }}">
+                        <i class="far fa-heart"></i> <span class="like-count">0</span>
+                    </button>
+                    <button class="btn-share" data-url="{{ .Permalink }}" data-title="{{ .Title }}">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </article>
+        {{ end }}
+    </div>
+    
+    {{ if gt (len (where .Site.RegularPages "Type" "posts")) 6 }}
+    <div class="view-all">
+        <a href="/posts/" class="btn btn-secondary">查看所有文章</a>
+    </div>
+    {{ end }}
+</section>
+
+<!-- 特色分类 -->
+<section class="featured-categories">
+    <h2 class="section-title">热门分类 <i class="fas fa-tags"></i></h2>
+    <div class="categories-grid">
+        {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+        <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}/" class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="category-info">
+                <h3>{{ $name | humanize }}</h3>
+                <p>{{ len $taxonomy }}篇文章</p>
+            </div>
+        </a>
+        {{ end }}
+    </div>
+</section>
+
+<!-- 关于摘要 -->
+<section class="about-preview">
+    <div class="about-content">
+        <h2 class="section-title">关于知识星球 <i class="fas fa-info-circle"></i></h2>
+        <p>这里是我记录、整理和分享学习心得的地方。从技术笔记到生活感悟，从读书心得到项目经验，每一篇文章都是思考的痕迹。</p>
+        <div class="about-stats">
+            <div class="stat">
+                <i class="fas fa-file-alt"></i>
+                <span class="stat-number">{{ len (where .Site.RegularPages "Type" "posts") }}</span>
+                <span class="stat-label">篇文章</span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-tags"></i>
+                <span class="stat-number">{{ len .Site.Taxonomies.tags }}</span>
+                <span class="stat-label">个标签</span>
+            </div>
+            <div class="stat">
+                <i class="fas fa-folder"></i>
+                <span class="stat-number">{{ len .Site.Taxonomies.categories }}</span>
+                <span class="stat-label">个分类</span>
+            </div>
+        </div>
+        <a href="/about/" class="btn btn-outline">了解更多</a>
+    </div>
+</section>
+{{ end }}

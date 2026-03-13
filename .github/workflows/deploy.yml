@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Deploy Hugo Site to GitHub Pages
 
 on:
   push:
@@ -15,110 +15,36 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: '0.123.7'
+          extended: false
+      
+      - name: Build
+        run: hugo --minify
+      
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
-      - name: Create minimal site
-        run: |
-          mkdir -p _site
-          cat > _site/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="zh-CN">
-          <head>
-              <meta charset="UTF-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <title>知识星球 - 个人知识管理</title>
-              <style>
-                  body {
-                      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                      line-height: 1.6;
-                      margin: 0;
-                      padding: 0;
-                      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                      min-height: 100vh;
-                      display: flex;
-                      align-items: center;
-                      justify-content: center;
-                  }
-                  .container {
-                      background: white;
-                      padding: 3rem;
-                      border-radius: 20px;
-                      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-                      text-align: center;
-                      max-width: 600px;
-                      margin: 2rem;
-                  }
-                  h1 {
-                      color: #333;
-                      margin-bottom: 1rem;
-                  }
-                  p {
-                      color: #666;
-                      margin-bottom: 2rem;
-                  }
-                  .status {
-                      background: #f0f9ff;
-                      border: 2px solid #2563eb;
-                      border-radius: 10px;
-                      padding: 1rem;
-                      margin: 1rem 0;
-                  }
-                  .links {
-                      display: flex;
-                      gap: 1rem;
-                      justify-content: center;
-                      margin-top: 2rem;
-                  }
-                  a {
-                      color: #2563eb;
-                      text-decoration: none;
-                      padding: 0.5rem 1rem;
-                      border: 2px solid #2563eb;
-                      border-radius: 5px;
-                      transition: all 0.3s;
-                  }
-                  a:hover {
-                      background: #2563eb;
-                      color: white;
-                  }
-              </style>
-          </head>
-          <body>
-              <div class="container">
-                  <h1>✨ 知识星球</h1>
-                  <p>个人知识管理星球 - 记录、分享、成长</p>
-                  
-                  <div class="status">
-                      <p><strong>网站状态：</strong>部署成功！</p>
-                      <p>基于Hugo的完整网站正在构建中...</p>
-                  </div>
-                  
-                  <p>这是一个临时页面，完整的知识星球网站即将上线！</p>
-                  
-                  <div class="links">
-                      <a href="https://github.com/helloliying/knowledge-planet">GitHub仓库</a>
-                      <a href="https://github.com/helloliying/knowledge-planet/actions">构建状态</a>
-                  </div>
-              </div>
-          </body>
-          </html>
-          EOF
-      
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '_site'
-      
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
