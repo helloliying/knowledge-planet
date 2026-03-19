@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一键修复监控系统</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .fix-container {
+            max-width: 500px;
+            width: 100%;
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 3rem;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .status {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            text-align: left;
+        }
+        
+        .status-step {
+            display: flex;
+            align-items: center;
+            margin: 0.8rem 0;
+            padding: 0.5rem;
+            border-radius: 6px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .step-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: #334155;
+            color: #94a3b8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: bold;
+        }
+        
+        .step-icon.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .step-icon.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .step-icon.running {
+            background: #f59e0b;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin: 0.5rem;
+            width: 100%;
+            font-size: 1.1rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .console {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 1.5rem;
+        }
+        
+        .console-line {
+            margin: 0.3rem 0;
+            color: #cbd5e1;
+        }
+        
+        .console-line.success {
+            color: #10b981;
+        }
+        
+        .console-line.error {
+            color: #ef4444;
+        }
+        
+        .console-line.warning {
+            color: #f59e0b;
+        }
+        
+        .console-line.info {
+            color: #60a5fa;
+        }
+        
+        .links {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #334155;
+        }
+        
+        .links a {
+            color: #60a5fa;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+        
+        .links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="fix-container">
+        <h1>🔧 一键修复</h1>
+        <p>修复监控系统常见问题，让监控仪表板正常工作</p>
+        
+        <div class="status">
+            <h3>修复步骤：</h3>
+            <div class="status-step">
+                <div class="step-icon" id="step1">1</div>
+                <div>检查本地存储</div>
+            </div>
+            <div class="status-step">
+                <div class="step-icon" id="step2">2</div>
+                <div>创建测试数据</div>
+            </div>
+            <div class="status-step">
+                <div class="step-icon" id="step3">3</div>
+                <div>加载监控脚本</div>
+            </div>
+            <div class="status-step">
+                <div class="step-icon" id="step4">4</div>
+                <div>初始化监控系统</div>
+            </div>
+        </div>
+        
+        <button onclick="runFix()" class="btn" id="fix-btn">🚀 开始一键修复</button>
+        <button onclick="clearAllData()" class="btn btn-warning">🗑️ 清空所有数据</button>
+        
+        <div class="console" id="console">
+            <div class="console-line info">等待开始修复...</div>
+        </div>
+        
+        <div class="links">
+            <p>相关链接：</p>
+            <p>
+                <a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" target="_blank">监控仪表板</a> |
+                <a href="https://helloliying.github.io/knowledge-planet/diagnose-monitor.html" target="_blank">诊断工具</a> |
+                <a href="https://helloliying.github.io/knowledge-planet/quick-test.html" target="_blank">快速测试</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 加载修复脚本 -->
+    <script src="https://helloliying.github.io/knowledge-planet/js/fix-monitor.js"></script>
+    
+    <script>
+        let isFixing = false;
+        const consoleEl = document.getElementById('console');
+        const fixBtn = document.getElementById('fix-btn');
+        
+        function logToConsole(message, type = 'info') {
+            const line = document.createElement('div');
+            line.className = `console-line ${type}`;
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+        
+        function updateStep(stepNumber, status) {
+            const stepIcon = document.getElementById(`step${stepNumber}`);
+            stepIcon.className = 'step-icon';
+            
+            if (status === 'running') {
+                stepIcon.className = 'step-icon running';
+                stepIcon.textContent = '⟳';
+            } else if (status === 'success') {
+                stepIcon.className = 'step-icon success';
+                stepIcon.textContent = '✓';
+            } else if (status === 'error') {
+                stepIcon.className = 'step-icon error';
+                stepIcon.textContent = '✗';
+            } else {
+                stepIcon.className = 'step-icon';
+                stepIcon.textContent = stepNumber;
+            }
+        }
+        
+        function runFix() {
+            if (isFixing) return;
+            
+            isFixing = true;
+            fixBtn.disabled = true;
+            fixBtn.textContent = '修复中...';
+            consoleEl.innerHTML = '<div class="console-line info">开始修复...</div>';
+            
+            // 重置所有步骤
+            for (let i = 1; i <= 4; i++) {
+                updateStep(i, 'pending');
+            }
+            
+            // 步骤1: 检查本地存储
+            updateStep(1, 'running');
+            logToConsole('检查本地存储...', 'info');
+            
+            setTimeout(() => {
+                const storageKey = 'ks_website_monitor';
+                const stored = localStorage.getItem(storageKey);
+                
+                if (stored) {
+                    updateStep(1, 'success');
+                    logToConsole('✅ 本地存储中有监控数据', 'success');
+                } else {
+                    updateStep(1, 'error');
+                    logToConsole('📭 本地存储中没有监控数据', 'warning');
+                }
+                
+                // 步骤2: 创建测试数据
+                updateStep(2, 'running');
+                logToConsole('创建测试数据...', 'info');
+                
+                setTimeout(() => {
+                    const testData = {
+                        session: {
+                            id: 'fixed_session_' + Date.now(),
+                            startTime: Date.now(),
+                            currentPage: window.location.href,
+                            userAgent: navigator.userAgent,
+                            screenSize: `${window.screen.width}x${window.screen.height}`,
+                            language: navigator.language
+                        },
+                        events: [
+                            {
+                                type: 'pageview',
+                                timestamp: Date.now(),
+                                pageUrl: window.location.href,
+                                pageTitle: document.title,
+                                sessionId: 'fixed_session_' + Date.now()
+                            }
+                        ],
+                        stats: {
+                            totalEvents: 1,
+                            byType: { pageview: 1 },
+                            byPage: { [window.location.href]: 1 },
+                            lastUpdate: Date.now()
+                        },
+                        pageViews: [
+                            {
+                                type: 'pageview',
+                                timestamp: Date.now(),
+                                pageUrl: window.location.href,
+                                pageTitle: document.title,
+                                sessionId: 'fixed_session_' + Date.now()
+                            }
+                        ],
+                        lastSave: Date.now()
+                    };
+                    
+                    localStorage.setItem('ks_website_monitor', JSON.stringify(testData));
+                    updateStep(2, 'success');
+                    logToConsole('✅ 测试数据已创建并保存', 'success');
+                    
+                    // 步骤3: 加载监控脚本
+                    updateStep(3, 'running');
+                    logToConsole('加载监控脚本...', 'info');
+                    
+                    setTimeout(() => {
+                        // 检查是否已加载
+                        if (typeof window.WebsiteMonitor !== 'undefined') {
+                            updateStep(3, 'success');
+                            logToConsole('✅ 监控脚本已加载', 'success');
+                            
+                            runStep4();
+                        } else {
+                            // 动态加载
+                            const script = document.createElement('script');
+                            script.src = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+                            script.onload = () => {
+                                updateStep(3, 'success');
+                                logToConsole('✅ 监控脚本动态加载成功', 'success');
+                                runStep4();
+                            };
+                            script.onerror = () => {
+                                updateStep(3, 'error');
+                                logToConsole('❌ 监控脚本加载失败', 'error');
+                                finishFix(false);
+                            };
+                            document.head.appendChild(script);
+                        }
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        }
+        
+        function runStep4() {
+            updateStep(4, 'running');
+            logToConsole('初始化监控系统...', 'info');
+            
+            setTimeout(() => {
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    try {
+                        window.WebsiteMonitor.init();
+                        updateStep(4, 'success');
+                        logToConsole('✅ 监控系统初始化成功', 'success');
+                        finishFix(true);
+                    } catch (error) {
+                        updateStep(4, 'error');
+                        logToConsole(`❌ 监控系统初始化失败: ${error.message}`, 'error');
+                        finishFix(false);
+                    }
+                } else {
+                    updateStep(4, 'error');
+                    logToConsole('❌ 监控脚本未加载，无法初始化', 'error');
+                    finishFix(false);
+                }
+            }, 1000);
+        }
+        
+        function finishFix(success) {
+            isFixing = false;
+            fixBtn.disabled = false;
+            fixBtn.textContent = '🚀 开始一键修复';
+            
+            if (success) {
+                logToConsole('🎉 修复完成！', 'success');
+                logToConsole('现在可以：', 'info');
+                logToConsole('1. 访问监控仪表板', 'info');
+                logToConsole('2. 点击"加载监控数据"按钮', 'info');
+                logToConsole('3. 应该能看到监控数据了！', 'info');
+                
+                // 显示成功提示
+                setTimeout(() => {
+                    alert('✅ 修复完成！\n\n现在请访问监控仪表板：\nhttps://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html\n\n点击"加载监控数据"按钮查看结果。');
+                }, 500);
+            } else {
+                logToConsole('⚠️ 修复过程中遇到问题', 'warning');
+                logToConsole('请尝试手动清空数据重新开始', 'info');
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有监控数据吗？此操作不可撤销。')) {
+                localStorage.removeItem('ks_website_monitor');
+                
+                // 重置步骤显示
+                for (let i = 1; i <= 4; i++) {
+                    updateStep(i, 'pending');
+                }
+                
+                logToConsole('✅ 所有监控数据已清空', 'success');
+                logToConsole('提示: 现在可以重新运行一键修复', 'info');
+            }
+        }
+        
+        // 页面加载后检查状态
+        document.addEventListener('DOMContentLoaded', function() {
+            logToConsole('页面加载完成', 'info');
+            
+            // 检查当前状态
+            const stored = localStorage.getItem('ks_website_monitor');
+            if (stored) {
+                logToConsole('检测到本地存储中有监控数据', 'success');
+            } else {
+                logToConsole('本地存储中没有监控数据', 'warning');
+            }
+            
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                logToConsole('监控脚本已加载', 'success');
+            }
+        });
+    </script>
+</body>
+</html>
