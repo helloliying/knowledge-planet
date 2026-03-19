@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>无导航监控仪表板 - 知识星球</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <style>
+        /* 完全重置，确保无任何导航样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        
+        /* 确保没有任何导航元素 */
+        header, nav, .navbar, .nav-links, .site-header {
+            display: none !important;
+        }
+        
+        /* 仪表板容器 */
+        .dashboard {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        /* 标题栏 */
+        .title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .title-bar h1 {
+            font-size: 1.5rem;
+            color: #60a5fa;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(96, 165, 250, 0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        /* 统计卡片 */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #334155;
+        }
+        
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        /* 图表区域 */
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-box {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #334155;
+        }
+        
+        .chart-box h2 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+            color: #e2e8f0;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 150px; /* 小饼图 */
+        }
+        
+        #trajectory-chart {
+            height: 200px;
+        }
+        
+        /* 控制面板 */
+        .controls {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 15px;
+            border: 1px solid #334155;
+            margin-bottom: 15px;
+        }
+        
+        .controls h2 {
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+            color: #e2e8f0;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            background: #2563eb;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        
+        /* 数据预览 */
+        .data-preview {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                height: 120px;
+            }
+            
+            #trajectory-chart {
+                height: 180px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 纯HTML，无任何导航元素 -->
+    <div class="dashboard">
+        <div class="title-bar">
+            <h1>🔒 监控仪表板</h1>
+            <div class="status">
+                <span class="live-dot"></span>
+                <span>实时监控</span>
+            </div>
+        </div>
+        
+        <div class="stats" id="stats">
+            <!-- 动态加载 -->
+        </div>
+        
+        <div class="charts">
+            <div class="chart-box">
+                <h2>📈 鼠标轨迹</h2>
+                <div class="chart-container">
+                    <canvas id="trajectory-chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-box">
+                <h2>📊 事件分布</h2>
+                <div class="chart-container">
+                    <canvas id="distribution-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <h2>🎮 数据控制</h2>
+            <div class="buttons">
+                <button class="btn" onclick="exportData()">导出数据</button>
+                <button class="btn" onclick="downloadData()">下载文件</button>
+                <button class="btn" onclick="clearData()">清空数据</button>
+                <button class="btn" onclick="refreshData()">刷新统计</button>
+            </div>
+            <div>
+                <h3 style="font-size: 0.9rem; color: #94a3b8; margin: 10px 0 5px 0;">数据预览</h3>
+                <div class="data-preview" id="data-preview">
+                    等待数据...
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 使用本地Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        // 初始化变量
+        let trajectoryChart = null;
+        let distributionChart = null;
+        
+        // 初始化函数
+        function init() {
+            console.log('🚀 初始化无导航仪表板');
+            
+            // 初始化图表
+            initCharts();
+            
+            // 开始更新
+            startUpdates();
+            
+            // 显示初始数据
+            updateStats();
+            updateCharts();
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 轨迹图表
+            const trajectoryCtx = document.getElementById('trajectory-chart').getContext('2d');
+            trajectoryChart = new Chart(trajectoryCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '轨迹',
+                        data: [],
+                        backgroundColor: 'rgba(96, 165, 250, 0.3)',
+                        borderColor: 'rgba(96, 165, 250, 0.8)',
+                        borderWidth: 1,
+                        pointRadius: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y: {
+                            reverse: true,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+            
+            // 分布图表
+            const distributionCtx = document.getElementById('distribution-chart').getContext('2d');
+            distributionChart = new Chart(distributionCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['鼠标移动', '点击', '滚动', '其他'],
+                    datasets: [{
+                        data: [0, 0, 0, 0],
+                        backgroundColor: [
+                            '#60a5fa',
+                            '#10b981',
+                            '#f59e0b',
+                            '#64748b'
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 开始更新
+        function startUpdates() {
+            setInterval(updateData, 2000);
+        }
+        
+        // 更新数据
+        function updateData() {
+            updateStats();
+            updateCharts();
+        }
+        
+        // 更新统计
+        function updateStats() {
+            const statsContainer = document.getElementById('stats');
+            
+            // 模拟数据
+            const stats = {
+                moves: Math.floor(Math.random() * 1000) + 500,
+                clicks: Math.floor(Math.random() * 100) + 50,
+                scrolls: Math.floor(Math.random() * 50) + 20,
+                suspicious: Math.floor(Math.random() * 10)
+            };
+            
+            statsContainer.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-label">轨迹记录</div>
+                    <div class="stat-value">${stats.moves}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">点击事件</div>
+                    <div class="stat-value">${stats.clicks}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">滚动事件</div>
+                    <div class="stat-value">${stats.scrolls}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">可疑行为</div>
+                    <div class="stat-value">${stats.suspicious}</div>
+                </div>
+            `;
+            
+            // 更新数据预览
+            document.getElementById('data-preview').textContent = 
+                `最后更新: ${new Date().toLocaleTimeString()}\n` +
+                `轨迹: ${stats.moves} 点击: ${stats.clicks} 滚动: ${stats.scrolls}`;
+        }
+        
+        // 更新图表
+        function updateCharts() {
+            // 更新轨迹图表（模拟数据）
+            const trajectoryData = [];
+            for (let i = 0; i < 20; i++) {
+                trajectoryData.push({
+                    x: Math.random() * 1000,
+                    y: Math.random() * 500
+                });
+            }
+            trajectoryChart.data.datasets[0].data = trajectoryData;
+            trajectoryChart.update('none');
+            
+            // 更新分布图表
+            const distributionData = [
+                Math.floor(Math.random() * 800) + 200,
+                Math.floor(Math.random() * 100) + 50,
+                Math.floor(Math.random() * 50) + 20,
+                Math.floor(Math.random() * 30) + 10
+            ];
+            distributionChart.data.datasets[0].data = distributionData;
+            distributionChart.update('none');
+        }
+        
+        // 导出数据
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                stats: {
+                    moves: Math.floor(Math.random() * 1000) + 500,
+                    clicks: Math.floor(Math.random() * 100) + 50,
+                    scrolls: Math.floor(Math.random() * 50) + 20
+                }
+            };
+            
+            document.getElementById('data-preview').textContent = 
+                JSON.stringify(data, null, 2);
+            
+            navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+            alert('数据已复制到剪贴板');
+        }
+        
+        // 下载数据
+        function downloadData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                message: '这是模拟监控数据',
+                stats: {
+                    moves: Math.floor(Math.random() * 1000) + 500,
+                    clicks: Math.floor(Math.random() * 100) + 50,
+                    scrolls: Math.floor(Math.random() * 50) + 20
+                }
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `monitor-data-${new Date().toISOString().slice(0,19).replace(/[:]/g, '-')}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // 清空数据
+        function clearData() {
+            if (confirm('确定要清空数据吗？')) {
+                document.getElementById('data-preview').textContent = '数据已清空';
+                alert('数据已清空');
+            }
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            updateData();
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
