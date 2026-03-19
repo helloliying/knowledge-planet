@@ -1,0 +1,10 @@
+# GitHub Pages重定向规则
+RewriteEngine On
+
+# 确保分类页面链接正确
+RewriteCond %{REQUEST_URI} ^/knowledge-planet/categories/[^/]+/\.\./\.\./posts/
+RewriteRule ^knowledge-planet/categories/[^/]+/\.\./\.\./(posts/.+)$ /knowledge-planet/$1 [R=301,L]
+
+# 确保标签页面链接正确
+RewriteCond %{REQUEST_URI} ^/knowledge-planet/tags/[^/]+/\.\./\.\./posts/
+RewriteRule ^knowledge-planet/tags/[^/]+/\.\./\.\./(posts/.+)$ /knowledge-planet/$1 [R=301,L]
