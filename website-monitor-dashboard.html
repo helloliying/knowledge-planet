@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站行为监控仪表板 - 知识星球</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        
+        .monitoring-scope {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .scope-list {
+            list-style: none;
+            margin-top: 0.5rem;
+        }
+        
+        .scope-list li {
+            padding: 0.5rem 0;
+            color: #cbd5e1;
+        }
+        
+        .scope-list li:before {
+            content: "✅ ";
+            margin-right: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #60a5fa;
+        }
+        
+        .stat-card h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .stat-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .chart-container h2 {
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        #events-chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        #pages-chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        #trajectory-chart {
+            width: 100%;
+            height: 400px;
+        }
+        
+        .controls-panel {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+        
+        .data-preview {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .page-list {
+            margin-top: 1rem;
+        }
+        
+        .page-item {
+            padding: 0.8rem;
+            background: #1a2235;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #60a5fa;
+        }
+        
+        .page-url {
+            color: #60a5fa;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        
+        .page-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        .event-type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: rgba(96, 165, 250, 0.2);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #60a5fa;
+            margin-right: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .info-box {
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .info-box h4 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            #trajectory-chart {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>🌐 网站行为监控仪表板</h1>
+            <p>监控范围：https://helloliying.github.io/knowledge-planet/ 及其所有下级页面</p>
+            
+            <div class="monitoring-scope">
+                <h3>📋 监控范围说明：</h3>
+                <ul class="scope-list">
+                    <li>主页面：https://helloliying.github.io/knowledge-planet/</li>
+                    <li>所有文章页面：/posts/*</li>
+                    <li>分类页面：/categories/*</li>
+                    <li>标签页面：/tags/*</li>
+                    <li>安全仪表板：/security-dashboard-*.html</li>
+                    <li>其他所有下级页面</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>📝 使用说明：</h4>
+            <p>1. 将监控脚本添加到网站的所有页面中</p>
+            <p>2. 用户访问网站时，行为数据会被自动收集</p>
+            <p>3. 在此仪表板中查看所有页面的汇总数据</p>
+            <p>4. 数据存储在用户的本地存储中</p>
+        </div>
+        
+        <div class="stats-grid" id="live-stats">
+            <!-- 动态加载 -->
+        </div>
+        
+        <div class="chart-container">
+            <h2>📊 事件类型分布</h2>
+            <div class="chart-wrapper">
+                <canvas id="events-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>🌍 页面访问统计</h2>
+            <div class="chart-wrapper">
+                <canvas id="pages-chart"></canvas>
+            </div>
+            <div class="page-list" id="page-list">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>🖱️ 鼠标轨迹热力图</h2>
+            <div class="chart-wrapper">
+                <canvas id="trajectory-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="controls-panel">
+            <h2>🎮 数据管理</h2>
+            <div class="btn-group">
+                <button onclick="loadMonitorData()" class="btn btn-primary">🔄 加载监控数据</button>
+                <button onclick="exportAllData()" class="btn btn-success">📋 导出所有数据</button>
+                <button onclick="downloadData()" class="btn btn-success">💾 下载数据文件</button>
+                <button onclick="clearAllData()" class="btn btn-danger">🗑️ 清空所有数据</button>
+                <button onclick="refreshDashboard()" class="btn btn-secondary">🔄 刷新仪表板</button>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3>📈 事件类型统计</h3>
+                <div id="event-types">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3>📋 数据预览</h3>
+                <div class="data-preview" id="data-preview">
+                    点击"加载监控数据"查看网站监控数据
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    
+    <script>
+        // 网站监控仪表板
+        let eventsChart = null;
+        let pagesChart = null;
+        let trajectoryChart = null;
+        let updateInterval = null;
+        
+        // 监控数据
+        let monitorData = {
+            session: null,
+            events: [],
+            stats: { byType: {}, byPage: {} },
+            pageViews: []
+        };
+        
+        // 初始化仪表板
+        function initDashboard() {
+            console.log('🚀 初始化网站监控仪表板...');
+            
+            // 初始化图表
+            initCharts();
+            
+            // 加载监控数据
+            loadMonitorData();
+            
+            // 启动实时更新
+            startLiveUpdates();
+            
+            console.log('✅ 网站监控仪表板准备就绪');
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 事件类型分布图表
+            const eventsCtx = document.getElementById('events-chart').getContext('2d');
+            eventsChart = new Chart(eventsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['鼠标移动', '点击', '滚动', '页面访问', '其他'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(96, 165, 250, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(100, 116, 139, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { 
+                                color: '#94a3b8', 
+                                font: { size: 12 },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : '0';
+                                    return `${context.label}: ${context.raw} 次 (${percentage}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { size: 11, weight: 'bold' },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    cutout: '50%'
+                },
+                plugins: [ChartDataLabels]
+            });
+            
+            // 页面访问统计图表
+            const pagesCtx = document.getElementById('pages-chart').getContext('2d');
+            pagesChart = new Chart(pagesCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '访问次数',
+                        data: [],
+                        backgroundColor: 'rgba(96, 165, 250, 0.6)',
+                        borderColor: 'rgba(96, 165, 250, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8', font: { size: 11 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' },
+                            title: {
+                                display: true,
+                                text: '访问次数',
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `访问次数: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 鼠标轨迹热力图
+            const trajectoryCtx = document.getElementById('trajectory-chart').getContext('2d');
+            trajectoryChart = new Chart(trajectoryCtx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '鼠标轨迹',
+                        data: [],
+                        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+                        borderColor: 'rgba(96, 165, 250, 0.3)',
+                        borderWidth: 0.5,
+                        pointRadius: 2,
+                        pointHoverRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' },
+                            min: 0,
+                            max: 1920,
+                            title: {
+                                display: true,
+                                text: 'X 坐标',
+                                color: '#94a3b8'
+                            }
+                        },
+                        y: {
+                            reverse: true,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' },
+                            min: 0,
+                            max: 1080,
+                            title: {
+                                display: true,
+                                text: 'Y 坐标',
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `坐标: (${context.parsed.x}, ${context.parsed.y})`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载监控数据
+        function loadMonitorData() {
+            try {
+                // 尝试从本地存储加载监控数据
+                const stored = localStorage.getItem('ks_website_monitor');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    monitorData = parsed;
+                    
+                    console.log('📂 监控数据已加载', {
+                        eventCount: monitorData.events?.length || 0,
+                        sessionId: monitorData.session?.id
+                    });
+                    
+                    // 更新仪表板
+                    updateDashboard();
+                    
+                    // 显示成功消息
+                    showMessage('✅ 监控数据加载成功', 'success');
+                } else {
+                    showMessage('📭 未找到监控数据，请确保监控脚本已添加到网站页面', 'warning');
+                }
+            } catch (error) {
+                console.error('加载监控数据失败:', error);
+                showMessage('❌ 加载监控数据失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 更新仪表板
+        function updateDashboard() {
+            updateStatsCards();
+            updateEventsChart();
+            updatePagesChart();
+            updateTrajectoryChart();
+            updateEventTypes();
+            updatePageList();
+        }
+        
+        // 更新统计卡片
+        function updateStatsCards() {
+            const container = document.getElementById('live-stats');
+            if (!container) return;
+            
+            const stats = monitorData.stats || {};
+            const totalEvents = stats.totalEvents || 0;
+            const pageCount = Object.keys(stats.byPage || {}).length;
+            const sessionDuration = monitorData.session ? 
+                Math.floor((Date.now() - monitorData.session.startTime) / 1000) : 0;
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <h3>总事件数</h3>
+                    <div class="stat-value">${totalEvents}</div>
+                    <div class="stat-subtitle">所有页面的事件总数</div>
+                </div>
+                <div class="stat-card">
+                    <h3>监控页面数</h3>
+                    <div class="stat-value">${pageCount}</div>
+                    <div class="stat-subtitle">已收集数据的页面数量</div>
+                </div>
+                <div class="stat-card">
+                    <h3>会话时长</h3>
+                    <div class="stat-value">${formatTime(sessionDuration)}</div>
+                    <div class="stat-subtitle">当前监控会话持续时间</div>
+                </div>
+                <div class="stat-card">
+                    <h3>页面访问</h3>
+                    <div class="stat-value">${monitorData.pageViews?.length || 0}</div>
+                    <div class="stat-subtitle">页面访问记录数量</div>
+                </div>
+            `;
+        }
+        
+        // 更新事件类型图表
+        function updateEventsChart() {
+            if (!eventsChart) return;
+            
+            const stats = monitorData.stats || {};
+            const byType = stats.byType || {};
+            
+            // 映射事件类型
+            const eventMapping = {
+                'mousemove': '鼠标移动',
+                'click': '点击',
+                'scroll': '滚动',
+                'pageview': '页面访问',
+                'pageleave': '页面离开',
+                'keypress': '键盘输入',
+                'form': '表单交互',
+                'link': '链接点击'
+            };
+            
+            // 统计各类型数量
+            const typeCounts = {
+                '鼠标移动': byType['mousemove'] || 0,
+                '点击': byType['click'] || 0,
+                '滚动': byType['scroll'] || 0,
+                '页面访问': byType['pageview'] || 0,
+                '其他': (byType['pageleave'] || 0) + (byType['keypress'] || 0) + 
+                       (byType['form'] || 0) + (byType['link'] || 0)
+            };
+            
+            eventsChart.data.datasets[0].data = [
+                typeCounts['鼠标移动'],
+                typeCounts['点击'],
+                typeCounts['滚动'],
+                typeCounts['页面访问'],
+                typeCounts['其他']
+            ];
+            
+            eventsChart.update('none');
+        }
+        
+        // 更新页面访问图表
+        function updatePagesChart() {
+            if (!pagesChart) return;
+            
+            const stats = monitorData.stats || {};
+            const byPage = stats.byPage || {};
+            
+            // 获取访问次数最多的前10个页面
+            const topPages = Object.entries(byPage)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 10);
+            
+            // 更新图表数据
+            pagesChart.data.labels = topPages.map(([url]) => 
+                url.replace('https://helloliying.github.io/knowledge-planet/', '/')
+            );
+            pagesChart.data.datasets[0].data = topPages.map(([, count]) => count);
+            
+            pagesChart.update('none');
+        }
+        
+        // 更新鼠标轨迹图表
+        function updateTrajectoryChart() {
+            if (!trajectoryChart || !monitorData.events) return;
+            
+            // 获取所有鼠标移动事件
+            const mouseEvents = monitorData.events.filter(event => 
+                event.type === 'mousemove' && event.x && event.y
+            );
+            
+            // 限制数据量
+            const maxPoints = 500;
+            let points = mouseEvents;
+            
+            if (mouseEvents.length > maxPoints) {
+                // 均匀采样
+                const step = Math.floor(mouseEvents.length / maxPoints);
+                points = mouseEvents.filter((_, index) => index % step === 0).slice(0, maxPoints);
+            }
+            
+            // 转换数据格式
+            const data = points.map(event => ({
+                x: event.x,
+                y: event.y
+            }));
+            
+            trajectoryChart.data.datasets[0].data = data;
+            trajectoryChart.update('none');
+        }
+        
+        // 更新事件类型显示
+        function updateEventTypes() {
+            const container = document.getElementById('event-types');
+            if (!container) return;
+            
+            const stats = monitorData.stats || {};
+            const byType = stats.byType || {};
+            
+            let html = '';
+            for (const [type, count] of Object.entries(byType)) {
+                if (count > 0) {
+                    const typeName = getEventTypeName(type);
+                    html += `<span class="event-type-badge">${typeName}: ${count}</span>`;
+                }
+            }
+            
+            container.innerHTML = html || '<p style="color: #94a3b8;">暂无事件数据</p>';
+        }
+        
+        // 更新页面列表
+        function updatePageList() {
+            const container = document.getElementById('page-list');
+            if (!container) return;
+            
+            const stats = monitorData.stats || {};
+            const byPage = stats.byPage || {};
+            
+            if (Object.keys(byPage).length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; padding: 1rem;">暂无页面访问数据</p>';
+                return;
+            }
+            
+            let html = '';
+            for (const [url, count] of Object.entries(byPage)) {
+                const shortUrl = url.replace('https://helloliying.github.io/knowledge-planet/', '/');
+                html += `
+                    <div class="page-item">
+                        <div class="page-url">${shortUrl}</div>
+                        <div class="page-stats">
+                            <span>访问次数: ${count}</span>
+                            <span>事件总数: ${getPageEventCount(url)}</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            container.innerHTML = html;
+        }
+        
+        // 获取页面事件数量
+        function getPageEventCount(pageUrl) {
+            if (!monitorData.events) return 0;
+            return monitorData.events.filter(event => event.pageUrl === pageUrl).length;
+        }
+        
+        // 获取事件类型名称
+        function getEventTypeName(type) {
+            const typeNames = {
+                'mousemove': '鼠标移动',
+                'click': '点击',
+                'scroll': '滚动',
+                'pageview': '页面访问',
+                'pageleave': '页面离开',
+                'keypress': '键盘输入',
+                'form': '表单交互',
+                'link': '链接点击'
+            };
+            
+            return typeNames[type] || type;
+        }
+        
+        // 格式化时间
+        function formatTime(seconds) {
+            if (seconds < 60) return `${seconds}秒`;
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}分${seconds % 60}秒`;
+            return `${Math.floor(seconds / 3600)}时${Math.floor((seconds % 3600) / 60)}分`;
+        }
+        
+        // 显示消息
+        function showMessage(message, type = 'info') {
+            const colors = {
+                success: '#10b981',
+                error: '#ef4444',
+                warning: '#f59e0b',
+                info: '#60a5fa'
+            };
+            
+            console.log(`[${type.toUpperCase()}] ${message}`);
+            
+            // 简单的alert提示
+            alert(message);
+        }
+        
+        // 导出所有数据
+        function exportAllData() {
+            const data = JSON.stringify(monitorData, null, 2);
+            const preview = document.getElementById('data-preview');
+            if (preview) {
+                preview.textContent = data;
+                preview.scrollTop = 0;
+            }
+            
+            navigator.clipboard.writeText(data).then(() => {
+                showMessage('✅ 所有监控数据已复制到剪贴板', 'success');
+            }).catch(err => {
+                showMessage('❌ 复制失败: ' + err.message, 'error');
+            });
+        }
+        
+        // 下载数据文件
+        function downloadData() {
+            const data = JSON.stringify(monitorData, null, 2);
+            const blob = new Blob([data], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `website-monitor-data-${new Date().toISOString().slice(0,10)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showMessage('✅ 数据文件已下载', 'success');
+        }
+        
+        // 清空所有数据
+        function clearAllData() {
+            if (confirm('确定要清空所有网站监控数据吗？此操作不可撤销，所有页面的监控数据都会被清除。')) {
+                localStorage.removeItem('ks_website_monitor');
+                monitorData = {
+                    session: null,
+                    events: [],
+                    stats: { byType: {}, byPage: {} },
+                    pageViews: []
+                };
+                
+                updateDashboard();
+                document.getElementById('data-preview').textContent = '数据已清空';
+                
+                showMessage('🗑️ 所有网站监控数据已清空', 'success');
+            }
+        }
+        
+        // 刷新仪表板
+        function refreshDashboard() {
+            loadMonitorData();
+            showMessage('🔄 仪表板已刷新', 'info');
+        }
+        
+        // 启动实时更新
+        function startLiveUpdates() {
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(loadMonitorData, 10000); // 每10秒更新一次
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
