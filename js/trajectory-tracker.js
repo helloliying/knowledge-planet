@@ -7,22 +7,22 @@
 (function() {
     'use strict';
     
-    // 配置
+    // 配置（试验环境 - 完整记录）
     const TRACKER_CONFIG = {
         // 是否启用跟踪
         enabled: true,
         
-        // 采样间隔（毫秒），避免过于频繁
-        sampleInterval: 50,
+        // 采样间隔（毫秒）（试验环境：更密集采样）
+        sampleInterval: 20,
         
-        // 最大记录数
-        maxRecords: 500,
+        // 最大记录数（试验环境可增加）
+        maxRecords: 10000,
         
         // 存储键名
-        storageKey: 'ks_trajectory_data',
+        storageKey: 'ks_full_trajectory_data',
         
         // 自动保存间隔（毫秒）
-        saveInterval: 10000,
+        saveInterval: 5000,
         
         // 是否记录滚动事件
         trackScroll: true,
@@ -31,7 +31,18 @@
         trackClicks: true,
         
         // 是否记录移动事件
-        trackMovement: true
+        trackMovement: true,
+        
+        // 记录更多事件类型（试验环境）
+        trackKeyEvents: true,
+        trackFocusEvents: true,
+        trackFormEvents: true,
+        
+        // 详细日志
+        verbose: true,
+        
+        // 数据导出格式
+        exportFormat: 'detailed' // 'simple' | 'detailed' | 'raw'
     };
     
     // 轨迹数据存储
@@ -51,18 +62,48 @@
         // 从本地存储加载已有数据
         loadFromStorage();
         
-        // 绑定事件监听器
+        // 绑定事件监听器（试验环境 - 完整事件监听）
         if (TRACKER_CONFIG.trackMovement) {
             document.addEventListener('mousemove', handleMouseMove, { passive: true });
+            document.addEventListener('mouseenter', handleMouseEvent, { passive: true });
+            document.addEventListener('mouseleave', handleMouseEvent, { passive: true });
         }
         
         if (TRACKER_CONFIG.trackClicks) {
             document.addEventListener('mousedown', handleMouseDown, { passive: true });
+            document.addEventListener('mouseup', handleMouseEvent, { passive: true });
+            document.addEventListener('click', handleMouseEvent, { passive: true });
+            document.addEventListener('dblclick', handleMouseEvent, { passive: true });
+            document.addEventListener('contextmenu', handleMouseEvent, { passive: true });
         }
         
         if (TRACKER_CONFIG.trackScroll) {
             document.addEventListener('scroll', handleScroll, { passive: true });
+            window.addEventListener('resize', handleWindowEvent, { passive: true });
         }
+        
+        if (TRACKER_CONFIG.trackKeyEvents) {
+            document.addEventListener('keydown', handleKeyEvent, { passive: true });
+            document.addEventListener('keyup', handleKeyEvent, { passive: true });
+            document.addEventListener('keypress', handleKeyEvent, { passive: true });
+        }
+        
+        if (TRACKER_CONFIG.trackFocusEvents) {
+            document.addEventListener('focus', handleFocusEvent, { passive: true, capture: true });
+            document.addEventListener('blur', handleFocusEvent, { passive: true, capture: true });
+        }
+        
+        if (TRACKER_CONFIG.trackFormEvents) {
+            document.addEventListener('input', handleFormEvent, { passive: true, capture: true });
+            document.addEventListener('change', handleFormEvent, { passive: true, capture: true });
+            document.addEventListener('submit', handleFormEvent, { passive: true, capture: true });
+        }
+        
+        // 页面生命周期事件
+        window.addEventListener('load', handlePageEvent);
+        window.addEventListener('beforeunload', handlePageEvent);
+        window.addEventListener('pageshow', handlePageEvent);
+        window.addEventListener('pagehide', handlePageEvent);
         
         // 定期保存数据
         saveTimer = setInterval(saveToStorage, TRACKER_CONFIG.saveInterval);
@@ -174,6 +215,127 @@
             className: element.className || null,
             href: element.href || null
         };
+    }
+    
+    /**
+     * 处理通用鼠标事件
+     */
+    function handleMouseEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            x: event.clientX,
+            y: event.clientY,
+            pageX: event.pageX,
+            pageY: event.pageY,
+            screenX: event.screenX,
+            screenY: event.screenY,
+            button: event.button,
+            target: getTargetInfo(event.target),
+            relatedTarget: getTargetInfo(event.relatedTarget)
+        };
+        
+        addRecord(record);
+    }
+    
+    /**
+     * 处理键盘事件
+     */
+    function handleKeyEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            key: event.key,
+            code: event.code,
+            altKey: event.altKey,
+            ctrlKey: event.ctrlKey,
+            shiftKey: event.shiftKey,
+            metaKey: event.metaKey,
+            target: getTargetInfo(event.target)
+        };
+        
+        // 安全处理：不记录密码输入等敏感信息
+        const isSensitive = event.target.type === 'password' || 
+                           event.target.type === 'tel' ||
+                           event.target.type === 'email';
+        
+        if (isSensitive) {
+            record.key = '***';
+            record.code = '***';
+        }
+        
+        addRecord(record);
+    }
+    
+    /**
+     * 处理焦点事件
+     */
+    function handleFocusEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            target: getTargetInfo(event.target),
+            relatedTarget: getTargetInfo(event.relatedTarget)
+        };
+        
+        addRecord(record);
+    }
+    
+    /**
+     * 处理表单事件
+     */
+    function handleFormEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            target: getTargetInfo(event.target),
+            value: event.target.value ? '***' : null, // 模糊化处理
+            formId: event.target.form ? event.target.form.id || event.target.form.name || 'unknown' : null
+        };
+        
+        addRecord(record);
+    }
+    
+    /**
+     * 处理窗口事件
+     */
+    function handleWindowEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            innerWidth: window.innerWidth,
+            innerHeight: window.innerHeight,
+            outerWidth: window.outerWidth,
+            outerHeight: window.outerHeight
+        };
+        
+        addRecord(record);
+    }
+    
+    /**
+     * 处理页面事件
+     */
+    function handlePageEvent(event) {
+        const now = Date.now();
+        
+        const record = {
+            t: now - performance.timing.navigationStart,
+            type: event.type,
+            page: window.location.pathname,
+            timestamp: new Date().toISOString()
+        };
+        
+        addRecord(record);
     }
     
     /**
