@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>超简洁监控仪表板</title>
+    <style>
+        /* 完全重置，确保无任何外部样式 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { width: 100%; height: 100%; }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+        }
+        
+        .header h1 {
+            color: #4a9eff;
+            font-size: 1.8rem;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .stat {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #333;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .stat-value {
+            color: #4a9eff;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        .charts {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .chart-box {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .chart-box h2 {
+            color: #e0e0e0;
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+        
+        .chart-container {
+            width: 100%;
+            height: 120px;
+        }
+        
+        .controls {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+        
+        .buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 8px 15px;
+            background: #2d5aa0;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #3a6bc0;
+        }
+        
+        .data-display {
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 5px;
+            padding: 10px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 监控仪表板</h1>
+            <p style="color: #666; font-size: 0.9rem;">无导航版本</p>
+        </div>
+        
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">轨迹记录</div>
+                <div class="stat-value" id="stat-moves">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">点击事件</div>
+                <div class="stat-value" id="stat-clicks">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">滚动事件</div>
+                <div class="stat-value" id="stat-scrolls">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">活动时间</div>
+                <div class="stat-value" id="stat-time">0s</div>
+            </div>
+        </div>
+        
+        <div class="charts">
+            <div class="chart-box">
+                <h2>事件分布</h2>
+                <div class="chart-container">
+                    <canvas id="chart-distribution"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="buttons">
+                <button class="btn" onclick="updateData()">刷新数据</button>
+                <button class="btn" onclick="exportData()">导出数据</button>
+                <button class="btn" onclick="clearData()">清空数据</button>
+            </div>
+            <div class="data-display" id="data-output">
+                等待数据...
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 简单图表实现（不依赖外部库）
+        function initChart() {
+            const canvas = document.getElementById('chart-distribution');
+            const ctx = canvas.getContext('2d');
+            
+            // 设置画布尺寸
+            canvas.width = canvas.offsetWidth;
+            canvas.height = canvas.offsetHeight;
+            
+            function drawChart() {
+                const width = canvas.width;
+                const height = canvas.height;
+                const centerX = width / 2;
+                const centerY = height / 2;
+                const radius = Math.min(width, height) / 3;
+                
+                // 清空画布
+                ctx.clearRect(0, 0, width, height);
+                
+                // 绘制饼图
+                const data = [40, 25, 20, 15]; // 模拟数据
+                const colors = ['#4a9eff', '#2ecc71', '#e74c3c', '#f39c12'];
+                
+                let total = data.reduce((a, b) => a + b, 0);
+                let startAngle = 0;
+                
+                for (let i = 0; i < data.length; i++) {
+                    const sliceAngle = (data[i] / total) * 2 * Math.PI;
+                    
+                    ctx.beginPath();
+                    ctx.fillStyle = colors[i];
+                    ctx.moveTo(centerX, centerY);
+                    ctx.arc(centerX, centerY, radius, startAngle, startAngle + sliceAngle);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    startAngle += sliceAngle;
+                }
+            }
+            
+            drawChart();
+            return drawChart;
+        }
+        
+        // 更新数据
+        function updateData() {
+            // 更新统计
+            document.getElementById('stat-moves').textContent = 
+                Math.floor(Math.random() * 1000) + 500;
+            document.getElementById('stat-clicks').textContent = 
+                Math.floor(Math.random() * 100) + 50;
+            document.getElementById('stat-scrolls').textContent = 
+                Math.floor(Math.random() * 50) + 20;
+            
+            // 更新时间
+            const time = parseInt(document.getElementById('stat-time').textContent) || 0;
+            document.getElementById('stat-time').textContent = (time + 1) + 's';
+            
+            // 更新数据输出
+            const now = new Date();
+            document.getElementById('data-output').textContent = 
+                `更新时间: ${now.toLocaleTimeString()}\n` +
+                `轨迹: ${document.getElementById('stat-moves').textContent}\n` +
+                `点击: ${document.getElementById('stat-clicks').textContent}\n` +
+                `滚动: ${document.getElementById('stat-scrolls').textContent}`;
+            
+            // 重绘图表
+            if (window.drawChart) {
+                window.drawChart();
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            const data = {
+                timestamp: new Date().toISOString(),
+                stats: {
+                    moves: document.getElementById('stat-moves').textContent,
+                    clicks: document.getElementById('stat-clicks').textContent,
+                    scrolls: document.getElementById('stat-scrolls').textContent
+                }
+            };
+            
+            document.getElementById('data-output').textContent = 
+                JSON.stringify(data, null, 2);
+            
+            alert('数据已显示在下方');
+        }
+        
+        // 清空数据
+        function clearData() {
+            if (confirm('确定要清空数据吗？')) {
+                document.getElementById('stat-moves').textContent = '0';
+                document.getElementById('stat-clicks').textContent = '0';
+                document.getElementById('stat-scrolls').textContent = '0';
+                document.getElementById('stat-time').textContent = '0s';
+                document.getElementById('data-output').textContent = '数据已清空';
+            }
+        }
+        
+        // 初始化
+        function init() {
+            console.log('🚀 超简洁仪表板已加载');
+            
+            // 初始化图表
+            window.drawChart = initChart();
+            
+            // 开始自动更新
+            setInterval(updateData, 3000);
+            
+            // 立即更新一次
+            updateData();
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // 强制刷新快捷键
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'F5') {
+                e.preventDefault();
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>
