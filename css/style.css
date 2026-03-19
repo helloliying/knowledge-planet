@@ -19,15 +19,26 @@ body {
     padding: 0 20px;
 }
 
-/* 头部导航 - 已隐藏 */
-header {
+/* 头部导航 - 强制隐藏所有导航元素 */
+header, 
+.site-header, 
+.navbar, 
+.navbar-brand, 
+.navbar-menu, 
+.navbar-nav, 
+.nav-item, 
+.nav-link,
+.nav-links,
+nav {
     display: none !important;
-    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    border-bottom: 1px solid #334155;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    position: absolute !important;
+    left: -9999px !important;
 }
 
 nav {
