@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控系统诊断工具</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #60a5fa;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .diagnose-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid #334155;
+        }
+        
+        .diagnose-section h2 {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .result {
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            font-family: monospace;
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .success {
+            color: #10b981;
+            border-left: 4px solid #10b981;
+        }
+        
+        .error {
+            color: #ef4444;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .warning {
+            color: #f59e0b;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #334155;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .step {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .step h3 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            background: #60a5fa;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 24px;
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 监控系统诊断工具</h1>
+        
+        <div class="step">
+            <h3><span class="step-number">1</span> 诊断步骤</h3>
+            <p>点击下方按钮运行诊断，系统将检查监控脚本的各个组件</p>
+        </div>
+        
+        <div class="diagnose-section">
+            <h2>📊 运行完整诊断</h2>
+            <button onclick="runFullDiagnosis()" class="btn">🔍 运行完整诊断</button>
+            <button onclick="fixCommonIssues()" class="btn btn-success">🛠️ 自动修复常见问题</button>
+            <button onclick="clearAllData()" class="btn btn-warning">🗑️ 清空所有数据重新开始</button>
+        </div>
+        
+        <div class="diagnose-section">
+            <h2>🔍 诊断结果</h2>
+            <div class="result" id="diagnosis-result">
+                点击"运行完整诊断"开始
+            </div>
+        </div>
+        
+        <div class="diagnose-section">
+            <h2>⚙️ 手动检查</h2>
+            <div>
+                <button onclick="checkScriptLoad()" class="btn btn-secondary">检查脚本加载</button>
+                <button onclick="checkLocalStorage()" class="btn btn-secondary">检查本地存储</button>
+                <button onclick="checkMonitorAPI()" class="btn btn-secondary">检查监控API</button>
+                <button onclick="checkPageScript()" class="btn btn-secondary">检查页面脚本</button>
+            </div>
+        </div>
+        
+        <div class="diagnose-section">
+            <h2>📝 解决方案</h2>
+            <div class="result" id="solutions">
+                诊断后将显示解决方案
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3><span class="step-number">2</span> 测试链接</h3>
+            <p>测试其他相关页面：</p>
+            <p>
+                <a href="https://helloliying.github.io/knowledge-planet/" target="_blank" style="color: #60a5fa;">主网站页面</a> |
+                <a href="https://helloliying.github.io/knowledge-planet/quick-test.html" target="_blank" style="color: #60a5fa;">快速测试</a> |
+                <a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" target="_blank" style="color: #60a5fa;">监控仪表板</a>
+            </p>
+        </div>
+    </div>
+    
+    <!-- 加载监控脚本 -->
+    <script src="https://helloliying.github.io/knowledge-planet/js/website-monitor.js"></script>
+    
+    <script>
+        let diagnosisLog = [];
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${message}`;
+            diagnosisLog.push({message: logEntry, type});
+            
+            const resultEl = document.getElementById('diagnosis-result');
+            const color = type === 'error' ? '#ef4444' : 
+                         type === 'success' ? '#10b981' : 
+                         type === 'warning' ? '#f59e0b' : '#60a5fa';
+            
+            resultEl.innerHTML += `<div style="color:${color}; margin: 0.2rem 0;">${logEntry}</div>`;
+            resultEl.scrollTop = resultEl.scrollHeight;
+        }
+        
+        function clearLog() {
+            diagnosisLog = [];
+            document.getElementById('diagnosis-result').innerHTML = '';
+            document.getElementById('solutions').innerHTML = '';
+        }
+        
+        function runFullDiagnosis() {
+            clearLog();
+            log('开始完整诊断...', 'info');
+            
+            setTimeout(() => {
+                checkScriptLoad();
+                setTimeout(() => {
+                    checkLocalStorage();
+                    setTimeout(() => {
+                        checkMonitorAPI();
+                        setTimeout(() => {
+                            checkPageScript();
+                            setTimeout(() => {
+                                generateSolutions();
+                            }, 500);
+                        }, 500);
+                    }, 500);
+                }, 500);
+            }, 500);
+        }
+        
+        function checkScriptLoad() {
+            log('检查监控脚本加载...', 'info');
+            
+            // 检查脚本是否加载
+            const scriptUrl = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+            
+            // 方法1：检查window对象
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                log('✅ 监控脚本已加载到window对象', 'success');
+                log(`脚本版本: ${window.WebsiteMonitor.config?.version || '未知'}`, 'info');
+            } else {
+                log('❌ 监控脚本未加载到window对象', 'error');
+            }
+            
+            // 方法2：检查脚本标签
+            const scripts = document.querySelectorAll('script[src*="website-monitor"]');
+            if (scripts.length > 0) {
+                log(`✅ 找到 ${scripts.length} 个监控脚本标签`, 'success');
+                scripts.forEach((script, i) => {
+                    log(`脚本 ${i+1}: ${script.src}`, 'info');
+                });
+            } else {
+                log('❌ 未找到监控脚本标签', 'error');
+            }
+            
+            // 方法3：尝试动态加载
+            log('尝试动态加载监控脚本...', 'info');
+            const testScript = document.createElement('script');
+            testScript.src = scriptUrl;
+            testScript.onload = () => {
+                log('✅ 监控脚本可以动态加载', 'success');
+            };
+            testScript.onerror = () => {
+                log('❌ 监控脚本动态加载失败', 'error');
+            };
+            document.head.appendChild(testScript);
+        }
+        
+        function checkLocalStorage() {
+            log('检查本地存储...', 'info');
+            
+            // 检查存储键
+            const storageKey = 'ks_website_monitor';
+            const stored = localStorage.getItem(storageKey);
+            
+            if (stored) {
+                log(`✅ 找到本地存储数据 (键: ${storageKey})`, 'success');
+                try {
+                    const data = JSON.parse(stored);
+                    const eventCount = data.events?.length || 0;
+                    const sessionId = data.session?.id || '无';
+                    log(`数据统计: ${eventCount} 个事件, 会话: ${sessionId}`, 'info');
+                } catch (error) {
+                    log(`❌ 解析存储数据失败: ${error.message}`, 'error');
+                }
+            } else {
+                log(`❌ 本地存储中没有监控数据 (键: ${storageKey})`, 'error');
+                log('提示: 这可能是正常的，如果你还没有访问过添加监控脚本的页面', 'warning');
+            }
+            
+            // 检查其他可能的存储键
+            const allKeys = Object.keys(localStorage);
+            const monitorKeys = allKeys.filter(key => key.includes('monitor') || key.includes('ks_'));
+            if (monitorKeys.length > 0) {
+                log(`找到其他相关存储键: ${monitorKeys.join(', ')}`, 'info');
+            }
+        }
+        
+        function checkMonitorAPI() {
+            log('检查监控API功能...', 'info');
+            
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                try {
+                    // 测试getMonitorData
+                    const data = window.WebsiteMonitor.getMonitorData();
+                    log('✅ getMonitorData() 函数正常工作', 'success');
+                    log(`会话ID: ${data.session?.id || '无'}`, 'info');
+                    log(`事件数量: ${data.events?.length || 0}`, 'info');
+                    
+                    // 测试配置
+                    log(`配置: enabled=${window.WebsiteMonitor.config?.enabled}, autoSave=${window.WebsiteMonitor.config?.autoSave}`, 'info');
+                    
+                    // 测试保存功能
+                    window.WebsiteMonitor.saveToStorage();
+                    log('✅ saveToStorage() 函数正常工作', 'success');
+                    
+                } catch (error) {
+                    log(`❌ 监控API错误: ${error.message}`, 'error');
+                }
+            } else {
+                log('❌ 监控API不可用 (WebsiteMonitor未定义)', 'error');
+            }
+        }
+        
+        function checkPageScript() {
+            log('检查页面脚本集成...', 'info');
+            
+            // 检查当前页面是否来自知识星球域名
+            const isKnowledgePlanet = window.location.href.includes('helloliying.github.io/knowledge-planet');
+            log(`当前页面: ${window.location.href}`, 'info');
+            log(`是否知识星球域名: ${isKnowledgePlanet ? '✅ 是' : '❌ 否'}`, isKnowledgePlanet ? 'success' : 'warning');
+            
+            // 检查页面是否包含监控脚本
+            const pageSource = document.documentElement.outerHTML;
+            const hasMonitorScript = pageSource.includes('website-monitor.js');
+            log(`页面包含监控脚本: ${hasMonitorScript ? '✅ 是' : '❌ 否'}`, hasMonitorScript ? 'success' : 'error');
+            
+            // 检查控制台是否有错误
+            log('提示: 请打开浏览器开发者工具(F12)查看控制台是否有错误', 'info');
+        }
+        
+        function generateSolutions() {
+            log('生成解决方案...', 'info');
+            const solutionsEl = document.getElementById('solutions');
+            let solutions = '<h3>🔧 建议解决方案：</h3>';
+            
+            // 分析问题
+            const hasScript = typeof window.WebsiteMonitor !== 'undefined';
+            const hasStorage = localStorage.getItem('ks_website_monitor');
+            const isCorrectDomain = window.location.href.includes('helloliying.github.io/knowledge-planet');
+            
+            if (!hasScript) {
+                solutions += `
+                    <div class="step">
+                        <h4>问题1: 监控脚本未加载</h4>
+                        <p><strong>解决方案：</strong></p>
+                        <ol>
+                            <li>确保页面包含监控脚本标签：<code>&lt;script src="https://helloliying.github.io/knowledge-planet/js/website-monitor.js"&gt;&lt;/script&gt;</code></li>
+                            <li>刷新页面重新加载脚本</li>
+                            <li>检查浏览器控制台(F12)是否有脚本加载错误</li>
+                        </ol>
+                    </div>
+                `;
+            }
+            
+            if (!hasStorage) {
+                solutions += `
+                    <div class="step">
+                        <h4>问题2: 没有监控数据</h4>
+                        <p><strong>解决方案：</strong></p>
+                        <ol>
+                            <li>访问 <a href="https://helloliying.github.io/knowledge-planet/" target="_blank">主网站页面</a> 生成一些数据</li>
+                            <li>在页面上移动鼠标、点击、滚动</li>
+                            <li>等待几秒让数据自动保存</li>
+                            <li>返回监控仪表板重新加载数据</li>
+                        </ol>
+                    </div>
+                `;
+            }
+            
+            if (!isCorrectDomain) {
+                solutions += `
+                    <div class="step">
+                        <h4>问题3: 域名不匹配</h4>
+                        <p>监控数据存储在本地存储中，与域名绑定。</p>
+                        <p><strong>解决方案：</strong></p>
+                        <ol>
+                            <li>确保在 <code>https://helloliying.github.io/knowledge-planet/</code> 域名下访问</li>
+                            <li>不同域名间的本地存储是隔离的</li>
+                        </ol>
+                    </div>
+                `;
+            }
+            
+            if (hasScript && hasStorage && isCorrectDomain) {
+                solutions += `
+                    <div class="step">
+                        <h4>✅ 所有检查通过！</h4>
+                        <p>监控系统看起来工作正常。</p>
+                        <p>如果监控仪表板仍然报错，可能是：</p>
+                        <ol>
+                            <li>监控仪表板页面缓存 - 尝试强制刷新 (Ctrl+F5)</li>
+                            <li>浏览器扩展干扰 - 尝试禁用广告拦截器</li>
+                            <li>数据格式问题 - 尝试清空数据重新开始</li>
+                        </ol>
+                    </div>
+                `;
+            }
+            
+            solutionsEl.innerHTML = solutions;
+        }
+        
+        function fixCommonIssues() {
+            clearLog();
+            log('开始自动修复常见问题...', 'info');
+            
+            // 1. 确保监控脚本加载
+            if (typeof window.WebsiteMonitor === 'undefined') {
+                log('重新加载监控脚本...', 'info');
+                const script = document.createElement('script');
+                script.src = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+                script.onload = () => {
+                    log('✅ 监控脚本重新加载成功', 'success');
+                    // 2. 初始化监控
+                    if (typeof window.WebsiteMonitor !== 'undefined') {
+                        window.WebsiteMonitor.init();
+                        log('✅ 监控系统重新初始化', 'success');
+                    }
+                };
+                script.onerror = () => {
+                    log('❌ 监控脚本加载失败', 'error');
+                };
+                document.head.appendChild(script);
+            } else {
+                log('✅ 监控脚本已加载', 'success');
+            }
+            
+            // 3. 创建测试数据
+            setTimeout(() => {
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    log('创建测试数据...', 'info');
+                    // 触发一些测试事件
+                    for (let i = 0; i < 5; i++) {
+                        const event = new MouseEvent('mousemove', {
+                            clientX: Math.random() * window.innerWidth,
+                            clientY: Math.random() * window.innerHeight
+                        });
+                        document.dispatchEvent(event);
+                    }
+                    log('✅ 已创建测试数据', 'success');
+                    
+                    // 4. 强制保存
+                    window.WebsiteMonitor.saveToStorage();
+                    log('✅ 数据已保存到本地存储', 'success');
+                }
+            }, 1000);
+            
+            setTimeout(() => {
+                log('修复完成！现在可以重新测试监控仪表板', 'success');
+                generateSolutions();
+            }, 2000);
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有监控数据吗？此操作不可撤销。')) {
+                localStorage.removeItem('ks_website_monitor');
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    window.WebsiteMonitor.clearData();
+                }
+                log('✅ 所有监控数据已清空', 'success');
+                log('提示: 现在访问主网站页面重新生成数据', 'info');
+            }
+        }
+        
+        // 页面加载后自动运行基本检查
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                log('页面加载完成，开始基本检查...', 'info');
+                checkScriptLoad();
+                checkLocalStorage();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
