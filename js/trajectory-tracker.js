@@ -491,14 +491,31 @@
      * @returns {Array} 轨迹流数据
      */
     function getTrajectoryStream() {
-        return trajectoryData
-            .filter(record => record.type === 'mousemove' || record.type === 'mousedown')
+        // 调试：显示所有数据
+        if (TRACKER_CONFIG.verbose) {
+            console.log('📊 轨迹数据统计:', {
+                totalRecords: trajectoryData.length,
+                moveEvents: trajectoryData.filter(r => r.type === 'mousemove').length,
+                clickEvents: trajectoryData.filter(r => r.type === 'mousedown').length,
+                allTypes: [...new Set(trajectoryData.map(r => r.type))]
+            });
+        }
+        
+        // 返回所有包含坐标的数据
+        const stream = trajectoryData
+            .filter(record => record.x !== undefined && record.y !== undefined)
             .map(record => ({
                 t: record.t,
                 x: record.x,
                 y: record.y,
                 type: record.type
             }));
+            
+        if (TRACKER_CONFIG.verbose && stream.length === 0 && trajectoryData.length > 0) {
+            console.warn('⚠️ 有数据但无坐标信息:', trajectoryData.slice(0, 3));
+        }
+        
+        return stream;
     }
     
     /**
@@ -510,19 +527,27 @@
         const sessionDuration = now - sessionStart;
         
         const moves = trajectoryData.filter(r => r.type === 'mousemove');
-        const clicks = trajectoryData.filter(r => r.type === 'mousedown');
+        const clicks = trajectoryData.filter(r => r.type === 'mousedown' || r.type === 'click');
         const scrolls = trajectoryData.filter(r => r.type === 'scroll');
         const suspicious = trajectoryData.filter(r => r.type === 'suspicious');
         
-        return {
+        const stats = {
             totalRecords: trajectoryData.length,
             moves: moves.length,
             clicks: clicks.length,
             scrolls: scrolls.length,
             suspicious: suspicious.length,
             sessionDuration: Math.round(sessionDuration / 1000) + 's',
-            currentPage: window.location.pathname
+            currentPage: window.location.pathname,
+            windowSize: `${window.innerWidth}×${window.innerHeight}`,
+            hasData: trajectoryData.length > 0
         };
+        
+        if (TRACKER_CONFIG.verbose) {
+            console.log('📈 统计数据:', stats);
+        }
+        
+        return stats;
     }
     
     /**
