@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>监控脚本测试页面 - 知识星球</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .status-card {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+        
+        .status-online {
+            background: #10b981;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+        
+        .status-offline {
+            background: #ef4444;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .monitor-info {
+            text-align: left;
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .monitor-info h3 {
+            color: #a78bfa;
+            margin-bottom: 1rem;
+        }
+        
+        .monitor-info ul {
+            list-style: none;
+            padding-left: 1rem;
+        }
+        
+        .monitor-info li {
+            padding: 0.5rem 0;
+            color: #e2e8f0;
+        }
+        
+        .monitor-info li:before {
+            content: "✅ ";
+            margin-right: 0.5rem;
+        }
+        
+        .data-preview {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+            text-align: left;
+            color: #cbd5e1;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 监控脚本测试页面</h1>
+        <p>验证网站监控脚本是否正常工作</p>
+        
+        <div class="status-card">
+            <h2>
+                <span class="status-indicator" id="status-indicator"></span>
+                <span id="status-text">检查监控状态...</span>
+            </h2>
+            <p id="status-details">正在检测监控脚本...</p>
+        </div>
+        
+        <div class="monitor-info">
+            <h3>📋 监控功能清单：</h3>
+            <ul>
+                <li>鼠标移动轨迹监控</li>
+                <li>点击事件记录</li>
+                <li>滚动事件跟踪</li>
+                <li>页面访问记录</li>
+                <li>键盘输入监控（不记录密码）</li>
+                <li>表单交互记录</li>
+                <li>链接点击跟踪</li>
+                <li>本地数据存储</li>
+                <li>跨页面数据收集</li>
+            </ul>
+        </div>
+        
+        <div>
+            <a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" class="btn" target="_blank">
+                📊 查看监控仪表板
+            </a>
+            <a href="https://helloliying.github.io/knowledge-planet/website-monitor-install.html" class="btn btn-secondary" target="_blank">
+                📖 查看安装指南
+            </a>
+            <button onclick="testMonitor()" class="btn btn-secondary">
+                🧪 测试监控功能
+            </button>
+            <button onclick="clearTestData()" class="btn btn-secondary">
+                🗑️ 清空测试数据
+            </button>
+        </div>
+        
+        <div class="data-preview" id="data-preview">
+            点击"测试监控功能"查看监控数据
+        </div>
+        
+        <div style="margin-top: 2rem; color: rgba(255, 255, 255, 0.7);">
+            <p>页面URL: <span id="page-url"></span></p>
+            <p>监控脚本版本: 1.0.0 | 最后更新: 2026-03-19</p>
+        </div>
+    </div>
+    
+    <!-- 网站监控脚本 -->
+    <script src="https://helloliying.github.io/knowledge-planet/js/website-monitor.js"></script>
+    
+    <script>
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 显示页面URL
+            document.getElementById('page-url').textContent = window.location.href;
+            
+            // 检查监控状态
+            checkMonitorStatus();
+            
+            // 每5秒更新一次状态
+            setInterval(checkMonitorStatus, 5000);
+        });
+        
+        // 检查监控状态
+        function checkMonitorStatus() {
+            const indicator = document.getElementById('status-indicator');
+            const statusText = document.getElementById('status-text');
+            const statusDetails = document.getElementById('status-details');
+            
+            // 检查监控脚本是否加载
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                indicator.className = 'status-indicator status-online';
+                statusText.textContent = '监控脚本已加载';
+                statusDetails.textContent = '监控功能正常工作，数据正在收集';
+            } else {
+                indicator.className = 'status-indicator status-offline';
+                statusText.textContent = '监控脚本未加载';
+                statusDetails.textContent = '请检查监控脚本是否正确添加';
+            }
+        }
+        
+        // 测试监控功能
+        function testMonitor() {
+            const preview = document.getElementById('data-preview');
+            
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                try {
+                    // 获取监控数据
+                    const data = window.WebsiteMonitor.getMonitorData();
+                    const sessionId = data.session?.id || '未获取到';
+                    const eventCount = data.events?.length || 0;
+                    const pageViews = data.pageViews?.length || 0;
+                    
+                    // 显示数据
+                    preview.innerHTML = `
+                        <strong>✅ 监控数据获取成功！</strong><br><br>
+                        <strong>会话信息：</strong><br>
+                        - 会话ID: ${sessionId}<br>
+                        - 事件总数: ${eventCount} 条<br>
+                        - 页面访问: ${pageViews} 次<br>
+                        - 当前页面: ${data.currentPage || '未知'}<br><br>
+                        <strong>事件类型统计：</strong><br>
+                        ${Object.entries(data.stats?.byType || {}).map(([type, count]) => 
+                            `- ${getEventTypeName(type)}: ${count} 次`
+                        ).join('<br>') || '暂无事件数据'}
+                    `;
+                    
+                    // 触发一些测试事件
+                    triggerTestEvents();
+                    
+                } catch (error) {
+                    preview.innerHTML = `<span style="color: #ef4444;">❌ 获取监控数据失败: ${error.message}</span>`;
+                }
+            } else {
+                preview.innerHTML = '<span style="color: #ef4444;">❌ 监控脚本未加载，请刷新页面重试</span>';
+            }
+        }
+        
+        // 触发测试事件
+        function triggerTestEvents() {
+            // 模拟一些事件来测试监控
+            console.log('🎯 触发测试事件...');
+            
+            // 模拟鼠标移动
+            const mouseMoveEvent = new MouseEvent('mousemove', {
+                clientX: Math.random() * window.innerWidth,
+                clientY: Math.random() * window.innerHeight
+            });
+            document.dispatchEvent(mouseMoveEvent);
+            
+            // 模拟点击
+            setTimeout(() => {
+                const clickEvent = new MouseEvent('click', {
+                    clientX: Math.random() * window.innerWidth,
+                    clientY: Math.random() * window.innerHeight
+                });
+                document.dispatchEvent(clickEvent);
+            }, 100);
+            
+            // 模拟滚动
+            setTimeout(() => {
+                window.scrollBy(0, 100);
+            }, 200);
+        }
+        
+        // 清空测试数据
+        function clearTestData() {
+            if (confirm('确定要清空测试数据吗？')) {
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    window.WebsiteMonitor.clearData();
+                    document.getElementById('data-preview').textContent = '✅ 测试数据已清空';
+                } else {
+                    document.getElementById('data-preview').textContent = '❌ 监控脚本未加载';
+                }
+            }
+        }
+        
+        // 获取事件类型名称
+        function getEventTypeName(type) {
+            const typeNames = {
+                'mousemove': '鼠标移动',
+                'click': '点击',
+                'scroll': '滚动',
+                'pageview': '页面访问',
+                'pageleave': '页面离开',
+                'keypress': '键盘输入',
+                'form': '表单交互',
+                'link': '链接点击'
+            };
+            
+            return typeNames[type] || type;
+        }
+    </script>
+</body>
+</html>
