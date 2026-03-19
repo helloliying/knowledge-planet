@@ -1,125 +1,22 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-	<meta name="generator" content="Hugo 0.123.7"><script src="/knowledge-planet/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=knowledge-planet/livereload" data-no-instant defer></script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>知识星球 - 知识星球</title>
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #2563eb;
-            --bg-color: #ffffff;
-            --text-color: #333333;
-            --border-color: #e5e7eb;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <nav>
-            <div class="logo">
-                <a href="/">✨ 知识星球</a>
-            </div>
-            <ul class="nav-links">
-                <li><a href="/">首页</a></li>
-                <li><a href="/posts/">文章</a></li>
-                <li><a href="/categories/">分类</a></li>
-                <li><a href="/tags/">标签</a></li>
-                <li><a href="/about/">关于</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <main>
-        
-<div class="container">
-    <div class="hero">
-        <h1>欢迎来到知识星球</h1>
-        <p class="subtitle">记录 • 分享 • 成长</p>
-        <p>这里是我整理和分享知识的地方，用文字记录思考的轨迹。</p>
-    </div>
-
-    <div class="content-grid">
-        <section class="recent-posts">
-            <h2><i class="fas fa-newspaper"></i> 最新文章</h2>
-            
-        </section>
-
-        <aside class="sidebar">
-            <div class="sidebar-card">
-                <h3><i class="fas fa-user"></i> 关于作者</h3>
-                <p>知识探索者，喜欢记录和分享学习心得。</p>
-            </div>
-            
-            <div class="sidebar-card">
-                <h3><i class="fas fa-tags"></i> 热门标签</h3>
-                <div class="tag-cloud">
-                    <a href="/tags/技术/">技术</a>
-                    <a href="/tags/学习/">学习</a>
-                    <a href="/tags/生活/">生活</a>
-                    <a href="/tags/Markdown/">Markdown</a>
-                </div>
-            </div>
-            
-            <div class="sidebar-card">
-                <h3><i class="fas fa-search"></i> 搜索</h3>
-                <div class="search-box">
-                    <input type="text" placeholder="搜索文章...">
-                    <button><i class="fas fa-search"></i></button>
-                </div>
-            </div>
-        </aside>
-    </div>
-</div>
-
-    </main>
-
-    <footer>
-        <div class="footer-content">
-            <p>© 2026 知识星球 - 用文字记录思考</p>
-            <div class="social-links">
-                <a href="#" title="分享到Twitter"><i class="fab fa-twitter"></i></a>
-                <a href="#" title="分享到LinkedIn"><i class="fab fa-linkedin"></i></a>
-                <a href="#" title="分享到Reddit"><i class="fab fa-reddit"></i></a>
-            </div>
-        </div>
-    </footer>
-
-    
-    <div id="comments"></div>
-    
-    <script>
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            
-            const shareButtons = document.querySelectorAll('.share-btn');
-            shareButtons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const url = window.location.href;
-                    const title = document.title;
-                    const platform = this.dataset.platform;
-                    
-                    let shareUrl = '';
-                    switch(platform) {
-                        case 'twitter':
-                            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(title)}`;
-                            break;
-                        case 'linkedin':
-                            shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`;
-                            break;
-                        case 'reddit':
-                            shareUrl = `https://reddit.com/submit?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}`;
-                            break;
-                    }
-                    
-                    if(shareUrl) {
-                        window.open(shareUrl, '_blank', 'width=600,height=400');
-                    }
-                });
-            });
-        });
-    </script>
-</body>
-</html>
+<!doctype html><html lang=zh-CN><head><meta name=generator content="Hugo 0.123.7"><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><title>知识星球 - 知识星球</title>
+<link rel=stylesheet href=/css/style.css><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css><style>:root{--primary-color:#2563eb;--bg-color:#ffffff;--text-color:#333333;--border-color:#e5e7eb}</style></head><body><header><nav><div class=logo><a href=/>✨ 知识星球</a></div><ul class=nav-links><li><a href=/>首页</a></li><li><a href=/posts/>文章</a></li><li><a href=/categories/>分类</a></li><li><a href=/tags/>标签</a></li><li><a href=/about/>关于</a></li></ul></nav></header><main><section class=hero><div class=hero-content><h1 class=hero-title>知识星球</h1><p class=hero-subtitle>探索AI技术前沿，记录学习旅程</p><div class=hero-actions><a href=/posts/ class="btn btn-primary">开始探索</a>
+<a href=#featured class="btn btn-outline">精选文章</a></div></div></section><section id=featured class=featured-section><h2 class=section-title>🌟 精选推荐文章</h2><div class=featured-grid><article class="featured-card featured"><div class=featured-badge>精选</div><div class=featured-content><div class=post-category><span class=category-badge>技术教程</span></div><h3 class=post-title><a href=/knowledge-planet/posts/openclaw-quick-guide/>5分钟部署个人AI助手：OpenClaw快速指南</a></h3><div class=post-meta><time datetime=2026-03-19><i class="far fa-calendar"></i> 2026-03-19
+</time><span class=reading-time><i class="far fa-clock"></i> 4分钟阅读</span></div><p class=post-excerpt>只需5分钟，通过OpenClaw在您的服务器上部署个人AI助手，连接WhatsApp、Telegram等平台。</p><div class=post-tags><a href=/tags/%E6%95%99%E7%A8%8B/ class="tag tutorial-tag">教程</a>
+<a href=/tags/ai/ class="tag ai-tag">AI</a>
+<a href=/tags/%E9%83%A8%E7%BD%B2/ class=tag>部署</a></div><a href=/knowledge-planet/posts/openclaw-quick-guide/ class=read-more-btn>阅读全文 <i class="fas fa-arrow-right"></i></a></div></article><article class="featured-card featured"><div class=featured-badge>精选</div><div class=featured-content><div class=post-category><span class=category-badge>技术工具</span></div><h3 class=post-title><a href=/knowledge-planet/posts/openclaw-introduction/>OpenClaw：自托管的AI助手网关平台</a></h3><div class=post-meta><time datetime=2026-03-19><i class="far fa-calendar"></i> 2026-03-19
+</time><span class=reading-time><i class="far fa-clock"></i> 4分钟阅读</span></div><p class=post-excerpt>OpenClaw是一个自托管的AI助手网关，可以将WhatsApp、Telegram、Discord等聊天应用连接到AI编码助手，完全掌控数据主权。</p><div class=post-tags><a href=/tags/ai/ class="tag ai-tag">AI</a>
+<a href=/tags/%E5%BC%80%E6%BA%90/ class=tag>开源</a>
+<a href=/tags/%E8%87%AA%E6%89%98%E7%AE%A1/ class=tag>自托管</a></div><a href=/knowledge-planet/posts/openclaw-introduction/ class=read-more-btn>阅读全文 <i class="fas fa-arrow-right"></i></a></div></article></div></section><section class=recent-posts><h2 class=section-title>📚 最新文章</h2><div class=posts-grid><article class=post-card><div class=post-card-header><div class=post-category><a href=/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/>技术教程</a></div><h3 class=post-title><a href=/knowledge-planet/posts/openclaw-quick-guide/>5分钟部署个人AI助手：OpenClaw快速指南</a></h3><div class=post-meta><time datetime=2026-03-19><i class="far fa-calendar"></i> 2026-03-19
+</time><span class=reading-time><i class="far fa-clock"></i> 4分钟阅读</span></div></div><div class=post-card-body><p>只需5分钟，通过OpenClaw在您的服务器上部署个人AI助手，连接WhatsApp、Telegram等平台。</p></div><div class=post-card-footer><div class=post-tags><a href=/tags/%E6%95%99%E7%A8%8B/ class=tag>教程</a>
+<a href=/tags/ai/ class=tag>AI</a></div><a href=/knowledge-planet/posts/openclaw-quick-guide/ class=read-more>阅读 <i class="fas fa-arrow-right"></i></a></div></article><article class=post-card><div class=post-card-header><div class=post-category><a href=/categories/%E6%8A%80%E6%9C%AF%E5%B7%A5%E5%85%B7/>技术工具</a></div><h3 class=post-title><a href=/knowledge-planet/posts/openclaw-introduction/>OpenClaw：自托管的AI助手网关平台</a></h3><div class=post-meta><time datetime=2026-03-19><i class="far fa-calendar"></i> 2026-03-19
+</time><span class=reading-time><i class="far fa-clock"></i> 4分钟阅读</span></div></div><div class=post-card-body><p>OpenClaw是一个自托管的AI助手网关，可以将WhatsApp、Telegram、Discord等聊天应用连接到AI编码助手，完全掌控数据主权。</p></div><div class=post-card-footer><div class=post-tags><a href=/tags/ai/ class=tag>AI</a>
+<a href=/tags/%E5%BC%80%E6%BA%90/ class=tag>开源</a></div><a href=/knowledge-planet/posts/openclaw-introduction/ class=read-more>阅读 <i class="fas fa-arrow-right"></i></a></div></article><article class=post-card><div class=post-card-header><div class=post-category><a href=/categories/%E5%AD%A6%E4%B9%A0/>学习</a></div><h3 class=post-title><a href=/knowledge-planet/posts/learning-method/>高效学习方法论</a></h3><div class=post-meta><time datetime=2026-03-13><i class="far fa-calendar"></i> 2026-03-13
+</time><span class=reading-time><i class="far fa-clock"></i> 2分钟阅读</span></div></div><div class=post-card-body><p>分享我总结的高效学习方法论，包括知识管理、记忆技巧和实践策略。</p></div><div class=post-card-footer><div class=post-tags><a href=/tags/%E5%AD%A6%E4%B9%A0/ class=tag>学习</a>
+<a href=/tags/%E6%96%B9%E6%B3%95%E8%AE%BA/ class=tag>方法论</a></div><a href=/knowledge-planet/posts/learning-method/ class=read-more>阅读 <i class="fas fa-arrow-right"></i></a></div></article><article class=post-card><div class=post-card-header><div class=post-category><a href=/categories/%E6%8A%80%E6%9C%AF/>技术</a></div><h3 class=post-title><a href=/knowledge-planet/posts/markdown-guide/>Markdown写作指南</a></h3><div class=post-meta><time datetime=2026-03-13><i class="far fa-calendar"></i> 2026-03-13
+</time><span class=reading-time><i class="far fa-clock"></i> 1分钟阅读</span></div></div><div class=post-card-body><p>Markdown基础语法介绍，帮助您快速上手写作</p></div><div class=post-card-footer><div class=post-tags><a href=/tags/%E6%95%99%E7%A8%8B/ class=tag>教程</a>
+<a href=/tags/markdown/ class=tag>Markdown</a></div><a href=/knowledge-planet/posts/markdown-guide/ class=read-more>阅读 <i class="fas fa-arrow-right"></i></a></div></article><article class=post-card><div class=post-card-header><div class=post-category><a href=/categories/%E7%BD%91%E7%AB%99/>网站</a></div><h3 class=post-title><a href=/knowledge-planet/posts/first-post/>欢迎来到知识星球</a></h3><div class=post-meta><time datetime=2026-03-13><i class="far fa-calendar"></i> 2026-03-13
+</time><span class=reading-time><i class="far fa-clock"></i> 1分钟阅读</span></div></div><div class=post-card-body><p>这是我的第一篇博客文章，欢迎来到我的知识星球！</p></div><div class=post-card-footer><div class=post-tags><a href=/tags/%E6%AC%A2%E8%BF%8E/ class=tag>欢迎</a>
+<a href=/tags/%E4%BB%8B%E7%BB%8D/ class=tag>介绍</a></div><a href=/knowledge-planet/posts/first-post/ class=read-more>阅读 <i class="fas fa-arrow-right"></i></a></div></article></div></section><section class=categories-section><h2 class=section-title>🏷️ 文章分类</h2><div class=categories-grid><a href=/categories/%E5%AD%A6%E4%B9%A0/ class=category-card><div class=category-icon><i class="fas fa-folder"></i></div><div class=category-info><h3>学习</h3><p>1篇文章</p></div></a><a href=/categories/%E6%8A%80%E6%9C%AF/ class=category-card><div class=category-icon><i class="fas fa-folder"></i></div><div class=category-info><h3>技术</h3><p>1篇文章</p></div></a><a href=/categories/%E6%8A%80%E6%9C%AF%E5%B7%A5%E5%85%B7/ class=category-card><div class=category-icon><i class="fas fa-folder"></i></div><div class=category-info><h3>技术工具</h3><p>1篇文章</p></div></a><a href=/categories/%E6%8A%80%E6%9C%AF%E6%95%99%E7%A8%8B/ class=category-card><div class=category-icon><i class="fas fa-folder"></i></div><div class=category-info><h3>技术教程</h3><p>1篇文章</p></div></a><a href=/categories/%E7%BD%91%E7%AB%99/ class=category-card><div class=category-icon><i class="fas fa-folder"></i></div><div class=category-info><h3>网站</h3><p>1篇文章</p></div></a></div></section><section class=stats-section><div class=stats-container><h2 class=section-title>📊 知识星球统计</h2><div class=stats-grid><div class=stat-item><i class="fas fa-file-alt"></i><div class=stat-number>5</div><div class=stat-label>总文章数</div></div><div class=stat-item><i class="fas fa-tags"></i><div class=stat-number>13</div><div class=stat-label>标签数量</div></div><div class=stat-item><i class="fas fa-folder"></i><div class=stat-number>5</div><div class=stat-label>分类数量</div></div><div class=stat-item><i class="fas fa-calendar-alt"></i><div class=stat-number>2026</div><div class=stat-label>知识年份</div></div></div></div></section><section class=cta-section><div class=cta-content><h2>加入知识探索之旅</h2><p>订阅我们的更新，获取最新的技术文章和学习资源</p><form class=subscribe-form><input type=email placeholder=输入您的邮箱地址 required>
+<button type=submit class="btn btn-primary">订阅更新</button></form><p class=form-note>我们尊重您的隐私，不会分享您的邮箱地址</p></div></section></main><footer><div class=footer-content><p>© 2026 知识星球 - 用文字记录思考</p><div class=social-links><a href=# title=分享到Twitter><i class="fab fa-twitter"></i></a>
+<a href=# title=分享到LinkedIn><i class="fab fa-linkedin"></i></a>
+<a href=# title=分享到Reddit><i class="fab fa-reddit"></i></a></div></div></footer><div id=comments></div><script>document.addEventListener("DOMContentLoaded",function(){const e=document.querySelectorAll(".share-btn");e.forEach(e=>{e.addEventListener("click",function(){const t=window.location.href,n=document.title,s=this.dataset.platform;let e="";switch(s){case"twitter":e=`https://twitter.com/intent/tweet?url=${encodeURIComponent(t)}&text=${encodeURIComponent(n)}`;break;case"linkedin":e=`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(t)}`;break;case"reddit":e=`https://reddit.com/submit?url=${encodeURIComponent(t)}&title=${encodeURIComponent(n)}`;break}e&&window.open(e,"_blank","width=600,height=400")})})})</script></body></html>

@@ -1,0 +1,168 @@
+{{ define "main" }}
+<!-- 英雄区域 -->
+<section class="hero">
+    <div class="hero-content">
+        <h1 class="hero-title">知识星球</h1>
+        <p class="hero-subtitle">探索AI技术前沿，记录学习旅程</p>
+        <div class="hero-actions">
+            <a href="/posts/" class="btn btn-primary">开始探索</a>
+            <a href="#featured" class="btn btn-outline">精选文章</a>
+        </div>
+    </div>
+</section>
+
+<!-- 特色文章展示 -->
+<section id="featured" class="featured-section">
+    <h2 class="section-title">🌟 精选推荐文章</h2>
+    <div class="featured-grid">
+        {{ range first 3 (where (where .Site.RegularPages "Type" "posts") "Params.featured" true) }}
+        <article class="featured-card {{ if .Params.featured }}featured{{ end }}">
+            <div class="featured-badge">精选</div>
+            <div class="featured-content">
+                <div class="post-category">
+                    {{ range first 1 .Params.categories }}
+                    <span class="category-badge">{{ . }}</span>
+                    {{ end }}
+                </div>
+                <h3 class="post-title">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </h3>
+                <div class="post-meta">
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        <i class="far fa-calendar"></i> {{ .Date.Format "2006-01-02" }}
+                    </time>
+                    <span class="reading-time">
+                        <i class="far fa-clock"></i> {{ .ReadingTime }}分钟阅读
+                    </span>
+                </div>
+                <p class="post-excerpt">{{ .Summary | truncate 120 }}</p>
+                <div class="post-tags">
+                    {{ range first 3 .Params.tags }}
+                    <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/" class="tag {{ if eq . "AI" }}ai-tag{{ else if eq . "教程" }}tutorial-tag{{ else if eq . "技术" }}tech-tag{{ end }}">{{ . }}</a>
+                    {{ end }}
+                </div>
+                <a href="{{ .RelPermalink }}" class="read-more-btn">
+                    阅读全文 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </article>
+        {{ end }}
+    </div>
+</section>
+
+<!-- 最新文章 -->
+<section class="recent-posts">
+    <h2 class="section-title">📚 最新文章</h2>
+    <div class="posts-grid">
+        {{ range first 6 (where .Site.RegularPages "Type" "posts") }}
+        <article class="post-card">
+            <div class="post-card-header">
+                {{ if .Params.categories }}
+                <div class="post-category">
+                    {{ range first 1 .Params.categories }}
+                    <a href="{{ "/categories/" | relLangURL }}{{ . | urlize }}/">{{ . }}</a>
+                    {{ end }}
+                </div>
+                {{ end }}
+                <h3 class="post-title">
+                    <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+                </h3>
+                <div class="post-meta">
+                    <time datetime="{{ .Date.Format "2006-01-02" }}">
+                        <i class="far fa-calendar"></i> {{ .Date.Format "2006-01-02" }}
+                    </time>
+                    <span class="reading-time">
+                        <i class="far fa-clock"></i> {{ .ReadingTime }}分钟阅读
+                    </span>
+                </div>
+            </div>
+            
+            <div class="post-card-body">
+                {{ if .Summary }}
+                    <p>{{ .Summary | truncate 100 }}</p>
+                {{ else }}
+                    <p>{{ .Plain | truncate 100 }}</p>
+                {{ end }}
+            </div>
+            
+            <div class="post-card-footer">
+                <div class="post-tags">
+                    {{ range first 2 .Params.tags }}
+                    <a href="{{ "/tags/" | relLangURL }}{{ . | urlize }}/" class="tag">{{ . }}</a>
+                    {{ end }}
+                </div>
+                <a href="{{ .RelPermalink }}" class="read-more">
+                    阅读 <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+        </article>
+        {{ end }}
+    </div>
+    
+    {{ if gt (len (where .Site.RegularPages "Type" "posts")) 6 }}
+    <div class="view-all">
+        <a href="/posts/" class="btn btn-secondary">查看所有文章</a>
+    </div>
+    {{ end }}
+</section>
+
+<!-- 热门分类 -->
+<section class="categories-section">
+    <h2 class="section-title">🏷️ 文章分类</h2>
+    <div class="categories-grid">
+        {{ range $name, $taxonomy := .Site.Taxonomies.categories }}
+        <a href="{{ "/categories/" | relLangURL }}{{ $name | urlize }}/" class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="category-info">
+                <h3>{{ $name }}</h3>
+                <p>{{ len $taxonomy }}篇文章</p>
+            </div>
+        </a>
+        {{ end }}
+    </div>
+</section>
+
+<!-- 统计信息 -->
+<section class="stats-section">
+    <div class="stats-container">
+        <h2 class="section-title">📊 知识星球统计</h2>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <i class="fas fa-file-alt"></i>
+                <div class="stat-number">{{ len (where .Site.RegularPages "Type" "posts") }}</div>
+                <div class="stat-label">总文章数</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-tags"></i>
+                <div class="stat-number">{{ len .Site.Taxonomies.tags }}</div>
+                <div class="stat-label">标签数量</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-folder"></i>
+                <div class="stat-number">{{ len .Site.Taxonomies.categories }}</div>
+                <div class="stat-label">分类数量</div>
+            </div>
+            <div class="stat-item">
+                <i class="fas fa-calendar-alt"></i>
+                <div class="stat-number">{{ now.Format "2006" }}</div>
+                <div class="stat-label">知识年份</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 召唤行动 -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>加入知识探索之旅</h2>
+        <p>订阅我们的更新，获取最新的技术文章和学习资源</p>
+        <form class="subscribe-form">
+            <input type="email" placeholder="输入您的邮箱地址" required>
+            <button type="submit" class="btn btn-primary">订阅更新</button>
+        </form>
+        <p class="form-note">我们尊重您的隐私，不会分享您的邮箱地址</p>
+    </div>
+</section>
+{{ end }}
