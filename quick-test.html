@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>快速监控测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background: #1e293b;
+            padding: 2rem;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        
+        h1 {
+            color: #60a5fa;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .status {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .status.online {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+        
+        .status.offline {
+            background: rgba(239, 68, 68, 0.1);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+        
+        .data-preview {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 200px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 监控脚本快速测试</h1>
+        <p>测试网站监控脚本是否正常工作</p>
+        
+        <div class="status" id="status">
+            检查监控状态...
+        </div>
+        
+        <div>
+            <button onclick="testMonitor()" class="btn">🧪 测试监控</button>
+            <button onclick="generateTestData()" class="btn">🎯 生成测试数据</button>
+            <button onclick="checkStorage()" class="btn">💾 检查存储</button>
+            <a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" class="btn" target="_blank">📊 监控仪表板</a>
+        </div>
+        
+        <div class="data-preview" id="data-preview">
+            点击"测试监控"查看结果
+        </div>
+        
+        <div style="margin-top: 2rem; color: #94a3b8; font-size: 0.9rem;">
+            <p>页面URL: <span id="page-url"></span></p>
+            <p>监控脚本: <span id="script-status">加载中...</span></p>
+        </div>
+    </div>
+    
+    <!-- 直接加载监控脚本 -->
+    <script src="https://helloliying.github.io/knowledge-planet/js/website-monitor.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('page-url').textContent = window.location.href;
+            checkMonitorStatus();
+        });
+        
+        function checkMonitorStatus() {
+            const statusEl = document.getElementById('status');
+            const scriptStatus = document.getElementById('script-status');
+            
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                statusEl.className = 'status online';
+                statusEl.innerHTML = '✅ <strong>监控脚本已加载</strong><br>监控功能正常工作';
+                scriptStatus.textContent = '已加载';
+            } else {
+                statusEl.className = 'status offline';
+                statusEl.innerHTML = '❌ <strong>监控脚本未加载</strong><br>请检查脚本是否正确添加';
+                scriptStatus.textContent = '未加载';
+            }
+        }
+        
+        function testMonitor() {
+            const preview = document.getElementById('data-preview');
+            
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                try {
+                    const data = window.WebsiteMonitor.getMonitorData();
+                    const eventCount = data.events?.length || 0;
+                    const sessionId = data.session?.id || '无';
+                    
+                    preview.innerHTML = `
+                        <strong>✅ 监控测试成功！</strong><br><br>
+                        <strong>会话信息：</strong><br>
+                        - 会话ID: ${sessionId}<br>
+                        - 事件总数: ${eventCount}<br>
+                        - 页面访问: ${data.pageViews?.length || 0}<br><br>
+                        <strong>存储状态：</strong><br>
+                        - 本地存储: ${localStorage.getItem('ks_website_monitor') ? '有数据' : '无数据'}
+                    `;
+                } catch (error) {
+                    preview.innerHTML = `<span style="color: #ef4444;">❌ 测试失败: ${error.message}</span>`;
+                }
+            } else {
+                preview.innerHTML = '<span style="color: #ef4444;">❌ 监控脚本未加载</span>';
+            }
+        }
+        
+        function generateTestData() {
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                // 模拟一些事件
+                for (let i = 0; i < 10; i++) {
+                    const event = new MouseEvent('mousemove', {
+                        clientX: Math.random() * window.innerWidth,
+                        clientY: Math.random() * window.innerHeight
+                    });
+                    document.dispatchEvent(event);
+                }
+                
+                document.getElementById('data-preview').innerHTML = '✅ 已生成10个鼠标移动事件<br>现在可以点击"测试监控"查看数据';
+            }
+        }
+        
+        function checkStorage() {
+            const stored = localStorage.getItem('ks_website_monitor');
+            const preview = document.getElementById('data-preview');
+            
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    const eventCount = data.events?.length || 0;
+                    preview.innerHTML = `
+                        <strong>💾 本地存储检查结果：</strong><br><br>
+                        - 存储键: ks_website_monitor<br>
+                        - 事件数量: ${eventCount}<br>
+                        - 会话ID: ${data.session?.id || '无'}<br>
+                        - 最后保存: ${data.lastSave ? new Date(data.lastSave).toLocaleTimeString() : '未知'}
+                    `;
+                } catch (error) {
+                    preview.innerHTML = `<span style="color: #ef4444;">❌ 解析存储数据失败: ${error.message}</span>`;
+                }
+            } else {
+                preview.innerHTML = '📭 本地存储中没有监控数据';
+            }
+        }
+        
+        // 每3秒检查一次状态
+        setInterval(checkMonitorStatus, 3000);
+    </script>
+</body>
+</html>
