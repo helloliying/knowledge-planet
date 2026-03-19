@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>实时监控测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #60a5fa;
+            text-align: center;
+        }
+        
+        .test-section {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border: 1px solid #334155;
+        }
+        
+        .test-section h2 {
+            color: #94a3b8;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .status-box {
+            padding: 1rem;
+            background: #0f172a;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            margin: 1rem 0;
+            font-family: monospace;
+        }
+        
+        .status-box.success {
+            border-left: 4px solid #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .status-box.error {
+            border-left: 4px solid #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .log {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .log-line {
+            margin: 0.3rem 0;
+        }
+        
+        .log-line.info {
+            color: #60a5fa;
+        }
+        
+        .log-line.success {
+            color: #10b981;
+        }
+        
+        .log-line.error {
+            color: #ef4444;
+        }
+        
+        .log-line.warning {
+            color: #f59e0b;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: 400px;
+            border: 2px solid #334155;
+            border-radius: 8px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 实时监控测试</h1>
+        <p>测试主网站页面监控是否正常工作</p>
+        
+        <div class="test-section">
+            <h2>1. 测试主网站页面</h2>
+            <p>主网站URL: <code>https://helloliying.github.io/knowledge-planet/</code></p>
+            <button onclick="testMainWebsite()" class="btn">🧪 测试主网站监控</button>
+            <button onclick="openMainWebsite()" class="btn btn-success">🌐 打开主网站</button>
+            <button onclick="checkMainWebsiteScript()" class="btn btn-warning">🔧 检查主网站脚本</button>
+            
+            <div class="status-box" id="main-website-status">
+                等待测试...
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>2. 实时监控日志</h2>
+            <div class="log" id="monitor-log">
+                <div class="log-line info">监控日志初始化...</div>
+            </div>
+            
+            <button onclick="startRealTimeMonitoring()" class="btn">▶️ 开始实时监控</button>
+            <button onclick="stopRealTimeMonitoring()" class="btn">⏸️ 停止实时监控</button>
+            <button onclick="clearLog()" class="btn">🗑️ 清空日志</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>3. 主网站预览</h2>
+            <div class="iframe-container">
+                <iframe src="https://helloliying.github.io/knowledge-planet/" id="main-website-frame" title="主网站预览"></iframe>
+            </div>
+            <button onclick="reloadIframe()" class="btn">🔄 刷新预览</button>
+            <button onclick="injectScriptToIframe()" class="btn btn-warning">💉 注入监控脚本到iframe</button>
+        </div>
+        
+        <div class="test-section">
+            <h2>4. 数据验证</h2>
+            <button onclick="checkLocalStorage()" class="btn">💾 检查本地存储</button>
+            <button onclick="checkMonitorData()" class="btn">📊 检查监控数据</button>
+            <button onclick="generateTestEvents()" class="btn">🎯 生成测试事件</button>
+            <button onclick="clearAllData()" class="btn btn-warning">🗑️ 清空所有数据</button>
+            
+            <div class="status-box" id="data-status">
+                数据状态: 等待检查...
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>5. 问题诊断</h2>
+            <p>常见问题及解决方案：</p>
+            <ol>
+                <li><strong>脚本未加载</strong> - 主网站页面可能没有正确添加监控脚本</li>
+                <li><strong>跨域限制</strong> - iframe中的页面可能无法访问父页面的本地存储</li>
+                <li><strong>脚本执行时机</strong> - 监控脚本可能在页面加载后才执行</li>
+                <li><strong>浏览器安全策略</strong> - 某些浏览器设置可能阻止脚本运行</li>
+            </ol>
+            
+            <button onclick="runFullDiagnosis()" class="btn">🔍 运行完整诊断</button>
+            <button onclick="applyFix()" class="btn btn-success">🛠️ 应用修复</button>
+        </div>
+    </div>
+    
+    <script>
+        let monitoringInterval = null;
+        let logEntries = [];
+        
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('monitor-log');
+            const timestamp = new Date().toLocaleTimeString();
+            const logLine = document.createElement('div');
+            logLine.className = `log-line ${type}`;
+            logLine.textContent = `[${timestamp}] ${message}`;
+            logEl.appendChild(logLine);
+            logEl.scrollTop = logEl.scrollHeight;
+            
+            logEntries.push({timestamp, message, type});
+            
+            // 限制日志数量
+            if (logEntries.length > 100) {
+                logEntries = logEntries.slice(-50);
+                const lines = logEl.querySelectorAll('.log-line');
+                for (let i = 0; i < lines.length - 50; i++) {
+                    lines[i].remove();
+                }
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('monitor-log').innerHTML = '';
+            logEntries = [];
+            log('日志已清空', 'info');
+        }
+        
+        function testMainWebsite() {
+            const statusEl = document.getElementById('main-website-status');
+            statusEl.className = 'status-box';
+            statusEl.innerHTML = '测试中...';
+            
+            log('开始测试主网站监控...', 'info');
+            
+            // 测试1: 检查主网站页面
+            fetch('https://helloliying.github.io/knowledge-planet/')
+                .then(response => response.text())
+                .then(html => {
+                    // 检查是否包含监控脚本
+                    const hasScript = html.includes('website-monitor.js');
+                    
+                    if (hasScript) {
+                        statusEl.className = 'status-box success';
+                        statusEl.innerHTML = '✅ 主网站页面包含监控脚本';
+                        log('✅ 主网站页面包含监控脚本', 'success');
+                        
+                        // 提取脚本标签
+                        const scriptMatch = html.match(/<script[^>]*website-monitor[^>]*>/);
+                        if (scriptMatch) {
+                            log(`脚本标签: ${scriptMatch[0]}`, 'info');
+                        }
+                    } else {
+                        statusEl.className = 'status-box error';
+                        statusEl.innerHTML = '❌ 主网站页面未找到监控脚本';
+                        log('❌ 主网站页面未找到监控脚本', 'error');
+                        log('问题: 监控脚本可能没有正确添加到页面', 'warning');
+                    }
+                })
+                .catch(error => {
+                    statusEl.className = 'status-box error';
+                    statusEl.innerHTML = `❌ 测试失败: ${error.message}`;
+                    log(`❌ 测试失败: ${error.message}`, 'error');
+                });
+        }
+        
+        function openMainWebsite() {
+            window.open('https://helloliying.github.io/knowledge-planet/', '_blank');
+            log('已在新标签页打开主网站', 'info');
+        }
+        
+        function checkMainWebsiteScript() {
+            log('检查主网站脚本详情...', 'info');
+            
+            // 创建iframe来检查脚本执行
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = 'https://helloliying.github.io/knowledge-planet/';
+            document.body.appendChild(iframe);
+            
+            iframe.onload = function() {
+                try {
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    const scripts = iframeDoc.querySelectorAll('script');
+                    
+                    log(`找到 ${scripts.length} 个脚本标签`, 'info');
+                    
+                    let foundMonitorScript = false;
+                    scripts.forEach((script, i) => {
+                        if (script.src && script.src.includes('website-monitor')) {
+                            foundMonitorScript = true;
+                            log(`✅ 脚本 ${i+1}: ${script.src}`, 'success');
+                        }
+                    });
+                    
+                    if (!foundMonitorScript) {
+                        log('❌ 未找到监控脚本标签', 'error');
+                    }
+                    
+                    // 检查window对象
+                    setTimeout(() => {
+                        try {
+                            const iframeWindow = iframe.contentWindow;
+                            if (iframeWindow.WebsiteMonitor) {
+                                log('✅ iframe中的监控脚本已加载并初始化', 'success');
+                            } else {
+                                log('❌ iframe中的监控脚本未加载', 'error');
+                            }
+                        } catch (e) {
+                            log(`⚠️ 无法访问iframe内容: ${e.message}`, 'warning');
+                        }
+                        
+                        document.body.removeChild(iframe);
+                    }, 1000);
+                } catch (e) {
+                    log(`❌ 无法访问iframe文档: ${e.message}`, 'error');
+                    document.body.removeChild(iframe);
+                }
+            };
+        }
+        
+        function startRealTimeMonitoring() {
+            if (monitoringInterval) {
+                log('实时监控已在运行', 'warning');
+                return;
+            }
+            
+            log('开始实时监控...', 'info');
+            monitoringInterval = setInterval(() => {
+                // 检查本地存储
+                const stored = localStorage.getItem('ks_website_monitor');
+                if (stored) {
+                    try {
+                        const data = JSON.parse(stored);
+                        const eventCount = data.events?.length || 0;
+                        log(`实时监控: ${eventCount} 个事件`, 'info');
+                    } catch (e) {
+                        log('实时监控: 存储数据解析错误', 'error');
+                    }
+                } else {
+                    log('实时监控: 无监控数据', 'warning');
+                }
+            }, 2000);
+        }
+        
+        function stopRealTimeMonitoring() {
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                monitoringInterval = null;
+                log('实时监控已停止', 'info');
+            }
+        }
+        
+        function reloadIframe() {
+            const iframe = document.getElementById('main-website-frame');
+            iframe.src = iframe.src;
+            log('iframe已刷新', 'info');
+        }
+        
+        function injectScriptToIframe() {
+            const iframe = document.getElementById('main-website-frame');
+            try {
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                
+                // 检查是否已有监控脚本
+                const existingScripts = iframeDoc.querySelectorAll('script[src*="website-monitor"]');
+                if (existingScripts.length > 0) {
+                    log('iframe中已有监控脚本', 'info');
+                    return;
+                }
+                
+                // 注入监控脚本
+                const script = iframeDoc.createElement('script');
+                script.src = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+                iframeDoc.head.appendChild(script);
+                
+                log('✅ 监控脚本已注入到iframe', 'success');
+                
+                // 等待脚本加载后初始化
+                setTimeout(() => {
+                    try {
+                        const iframeWindow = iframe.contentWindow;
+                        if (iframeWindow.WebsiteMonitor) {
+                            iframeWindow.WebsiteMonitor.init();
+                            log('✅ iframe中的监控脚本已初始化', 'success');
+                        }
+                    } catch (e) {
+                        log(`⚠️ 无法初始化iframe中的监控脚本: ${e.message}`, 'warning');
+                    }
+                }, 1000);
+            } catch (e) {
+                log(`❌ 无法访问iframe文档: ${e.message}`, 'error');
+                log('这可能是因为同源策略限制', 'warning');
+            }
+        }
+        
+        function checkLocalStorage() {
+            const statusEl = document.getElementById('data-status');
+            const stored = localStorage.getItem('ks_website_monitor');
+            
+            if (stored) {
+                try {
+                    const data = JSON.parse(stored);
+                    const eventCount = data.events?.length || 0;
+                    const sessionId = data.session?.id || '无';
+                    
+                    statusEl.className = 'status-box success';
+                    statusEl.innerHTML = `
+                        ✅ 本地存储中有监控数据<br>
+                        - 事件数量: ${eventCount}<br>
+                        - 会话ID: ${sessionId}<br>
+                        - 最后保存: ${data.lastSave ? new Date(data.lastSave).toLocaleTimeString() : '未知'}
+                    `;
+                    
+                    log(`本地存储检查: ${eventCount} 个事件`, 'success');
+                } catch (e) {
+                    statusEl.className = 'status-box error';
+                    statusEl.innerHTML = `❌ 存储数据解析错误: ${e.message}`;
+                    log(`存储数据解析错误: ${e.message}`, 'error');
+                }
+            } else {
+                statusEl.className = 'status-box error';
+                statusEl.innerHTML = '📭 本地存储中没有监控数据';
+                log('本地存储中没有监控数据', 'warning');
+            }
+        }
+        
+        function checkMonitorData() {
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                try {
+                    const data = window.WebsiteMonitor.getMonitorData();
+                    const eventCount = data.events?.length || 0;
+                    
+                    log(`监控数据检查: ${eventCount} 个事件`, 'success');
+                    log(`当前会话: ${data.session?.id || '无'}`, 'info');
+                } catch (e) {
+                    log(`监控数据检查失败: ${e.message}`, 'error');
+                }
+            } else {
+                log('监控脚本未加载，无法检查数据', 'error');
+            }
+        }
+        
+        function generateTestEvents() {
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                // 生成测试事件
+                for (let i = 0; i < 5; i++) {
+                    const event = new MouseEvent('mousemove', {
+                        clientX: Math.random() * window.innerWidth,
+                        clientY: Math.random() * window.innerHeight
+                    });
+                    document.dispatchEvent(event);
+                }
+                
+                // 强制保存
+                window.WebsiteMonitor.saveToStorage();
+                
+                log('✅ 已生成5个测试事件并保存', 'success');
+                checkLocalStorage();
+            } else {
+                log('❌ 监控脚本未加载，无法生成测试事件', 'error');
+            }
+        }
+        
+        function clearAllData() {
+            if (confirm('确定要清空所有监控数据吗？此操作不可撤销。')) {
+                localStorage.removeItem('ks_website_monitor');
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    window.WebsiteMonitor.clearData();
+                }
+                
+                const statusEl = document.getElementById('data-status');
+                statusEl.className = 'status-box';
+                statusEl.innerHTML = '✅ 所有监控数据已清空';
+                
+                log('所有监控数据已清空', 'success');
+            }
+        }
+        
+        function runFullDiagnosis() {
+            log('开始完整诊断...', 'info');
+            
+            // 1. 检查当前页面
+            log('1. 检查当前页面脚本...', 'info');
+            if (typeof window.WebsiteMonitor !== 'undefined') {
+                log('✅ 当前页面监控脚本已加载', 'success');
+            } else {
+                log('❌ 当前页面监控脚本未加载', 'error');
+            }
+            
+            // 2. 检查主网站页面
+            setTimeout(() => {
+                log('2. 检查主网站页面...', 'info');
+                testMainWebsite();
+            }, 1000);
+            
+            // 3. 检查本地存储
+            setTimeout(() => {
+                log('3. 检查本地存储...', 'info');
+                checkLocalStorage();
+            }, 2000);
+            
+            // 4. 检查iframe
+            setTimeout(() => {
+                log('4. 检查iframe状态...', 'info');
+                checkMainWebsiteScript();
+            }, 3000);
+        }
+        
+        function applyFix() {
+            log('应用修复方案...', 'info');
+            
+            // 方案1: 确保监控脚本在当前页面加载
+            if (typeof window.WebsiteMonitor === 'undefined') {
+                log('加载监控脚本到当前页面...', 'info');
+                const script = document.createElement('script');
+                script.src = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+                script.onload = () => {
+                    log('✅ 监控脚本已加载到当前页面', 'success');
+                    if (window.WebsiteMonitor) {
+                        window.WebsiteMonitor.init();
+                        log('✅ 监控脚本已初始化', 'success');
+                    }
+                };
+                document.head.appendChild(script);
+            }
+            
+            // 方案2: 生成测试数据
+            setTimeout(() => {
+                generateTestEvents();
+            }, 1000);
+            
+            // 方案3: 刷新iframe
+            setTimeout(() => {
+                reloadIframe();
+                log('iframe已刷新，现在可以测试主网站监控', 'info');
+            }, 2000);
+        }
+        
+        // 页面加载后自动运行基本检查
+        document.addEventListener('DOMContentLoaded', function() {
+            log('页面加载完成', 'info');
+            
+            // 检查当前页面状态
+            setTimeout(() => {
+                if (typeof window.WebsiteMonitor !== 'undefined') {
+                    log('✅ 当前页面监控脚本已加载', 'success');
+                } else {
+                    log('⚠️ 当前页面监控脚本未加载，正在加载...', 'warning');
+                    
+                    // 自动加载监控脚本
+                    const script = document.createElement('script');
+                    script.src = 'https://helloliying.github.io/knowledge-planet/js/website-monitor.js';
+                    script.onload = () => {
+                        log('✅ 监控脚本已自动加载', 'success');
+                        if (window.WebsiteMonitor) {
+                            window.WebsiteMonitor.init();
+                            log('✅ 监控脚本已自动初始化', 'success');
+                        }
+                    };
+                    document.head.appendChild(script);
+                }
+                
+                // 检查本地存储
+                checkLocalStorage();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
