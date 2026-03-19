@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站行为监控仪表板 - 聚合版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        .dashboard-header {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .dashboard-header p {
+            color: #94a3b8;
+            font-size: 1.1rem;
+        }
+        
+        .aggregation-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+        }
+        
+        .aggregation-info h3 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: #60a5fa;
+        }
+        
+        .stat-card h3 {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #60a5fa;
+        }
+        
+        .stat-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .chart-container {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .chart-container h2 {
+            margin-bottom: 1rem;
+            color: #e2e8f0;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            width: 100%;
+        }
+        
+        #events-chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        #pages-chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        #sessions-chart {
+            width: 100%;
+            height: 300px;
+        }
+        
+        .controls-panel {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            color: #e2e8f0;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            opacity: 0.9;
+        }
+        
+        .data-preview {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.9rem;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+        
+        .page-list {
+            margin-top: 1rem;
+        }
+        
+        .page-item {
+            padding: 0.8rem;
+            background: #1a2235;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #60a5fa;
+        }
+        
+        .page-url {
+            color: #60a5fa;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        
+        .page-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+        
+        .event-type-badge {
+            display: inline-block;
+            padding: 0.2rem 0.5rem;
+            background: rgba(96, 165, 250, 0.2);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            color: #60a5fa;
+            margin-right: 0.3rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .info-box {
+            padding: 1rem;
+            background: rgba(96, 165, 250, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(96, 165, 250, 0.3);
+            margin-bottom: 1rem;
+        }
+        
+        .info-box h4 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* 状态消息区域 */
+        .status-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+            transition: all 0.3s ease;
+        }
+        
+        .status-card {
+            background: #1e293b;
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            border-left: 4px solid #60a5fa;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .status-card.success {
+            border-left-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .status-card.error {
+            border-left-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .status-card.warning {
+            border-left-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .status-card.info {
+            border-left-color: #60a5fa;
+            background: rgba(96, 165, 250, 0.1);
+        }
+        
+        .status-icon {
+            font-size: 1.2rem;
+            margin-right: 0.8rem;
+        }
+        
+        .status-content {
+            flex: 1;
+        }
+        
+        .status-close {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0 0.5rem;
+            margin-left: 0.5rem;
+        }
+        
+        .status-close:hover {
+            color: #e2e8f0;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(100%);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .status-message {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 状态消息区域 -->
+    <div class="status-message" id="status-container"></div>
+    
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1>🌐 网站行为监控仪表板 - 聚合版</h1>
+            <p>聚合所有页面的监控数据，包括主网站及其所有下级页面</p>
+            
+            <div class="aggregation-info">
+                <h3>📊 数据聚合说明：</h3>
+                <p>本版本使用数据聚合器，可以收集以下页面的监控数据：</p>
+                <ul style="color: #cbd5e1; margin-top: 0.5rem; padding-left: 1rem;">
+                    <li>主页面：https://helloliying.github.io/knowledge-planet/</li>
+                    <li>所有文章页面：/posts/*</li>
+                    <li>分类页面：/categories/*</li>
+                    <li>标签页面：/tags/*</li>
+                    <li>关于页面：/about/</li>
+                    <li>所有监控相关页面：*.html</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="info-box">
+            <h4>📝 使用说明：</h4>
+            <p>1. 聚合器会自动收集所有页面的监控数据</p>
+            <p>2. 数据每10秒自动更新一次</p>
+            <p>3. 点击"聚合所有数据"按钮手动更新</p>
+            <p>4. 可以查看每个页面的详细数据</p>
+        </div>
+        
+        <div class="stats-grid" id="aggregated-stats">
+            <!-- 动态加载 -->
+        </div>
+        
+        <div class="chart-container">
+            <h2>📊 页面事件分布</h2>
+            <div class="chart-wrapper">
+                <canvas id="pages-chart"></canvas>
+            </div>
+            <div class="page-list" id="page-list">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>📈 事件类型汇总</h2>
+            <div class="chart-wrapper">
+                <canvas id="events-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="chart-container">
+            <h2>👥 会话统计</h2>
+            <div class="chart-wrapper">
+                <canvas id="sessions-chart"></canvas>
+            </div>
+        </div>
+        
+        <div class="controls-panel">
+            <h2>🎮 数据管理</h2>
+            <div class="btn-group">
+                <button onclick="loadAggregatedData()" class="btn btn-primary">🔄 加载聚合数据</button>
+                <button onclick="triggerAggregation()" class="btn btn-success">🔗 聚合所有数据</button>
+                <button onclick="exportAggregatedData()" class="btn btn-success">📋 导出聚合数据</button>
+                <button onclick="downloadAggregatedData()" class="btn btn-success">💾 下载数据文件</button>
+                <button onclick="clearAggregatedData()" class="btn btn-danger">🗑️ 清空聚合数据</button>
+                <button onclick="refreshDashboard()" class="btn btn-secondary">🔄 刷新仪表板</button>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3>🌍 监控页面列表</h3>
+                <div id="monitored-pages">
+                    <!-- 动态加载 -->
+                </div>
+            </div>
+            
+            <div style="margin-top: 1.5rem;">
+                <h3>📋 聚合数据预览</h3>
+                <div class="data-preview" id="data-preview">
+                    点击"加载聚合数据"查看所有页面的汇总数据
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- 加载聚合器脚本 -->
+    <script src="https://helloliying.github.io/knowledge-planet/js/monitor-aggregator.js"></script>
+    
+    <script>
+        // 聚合监控仪表板
+        let eventsChart = null;
+        let pagesChart = null;
+        let sessionsChart = null;
+        let updateInterval = null;
+        
+        // 聚合数据
+        let aggregatedData = {
+            pages: {},
+            summary: {
+                totalEvents: 0,
+                totalPageViews: 0,
+                uniqueSessions: [],
+                pagesCount: 0
+            }
+        };
+        
+        // 初始化仪表板
+        function initDashboard() {
+            console.log('🚀 初始化聚合监控仪表板...');
+            
+            // 初始化图表
+            initCharts();
+            
+            // 加载聚合数据
+            loadAggregatedData();
+            
+            // 启动实时更新
+            startLiveUpdates();
+            
+            console.log('✅ 聚合监控仪表板准备就绪');
+        }
+        
+        // 初始化图表
+        function initCharts() {
+            // 页面事件分布图表
+            const pagesCtx = document.getElementById('pages-chart').getContext('2d');
+            pagesChart = new Chart(pagesCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: '事件数量',
+                        data: [],
+                        backgroundColor: 'rgba(96, 165, 250, 0.6)',
+                        borderColor: 'rgba(96, 165, 250, 1)',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8', font: { size: 11 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#334155' },
+                            ticks: { color: '#94a3b8' },
+                            title: {
+                                display: true,
+                                text: '事件数量',
+                                color: '#94a3b8'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `事件数量: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // 事件类型汇总图表
+            const eventsCtx = document.getElementById('events-chart').getContext('2d');
+            eventsChart = new Chart(eventsCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['鼠标移动', '点击', '滚动', '页面访问', '其他'],
+                    datasets: [{
+                        data: [0, 0, 0, 0, 0],
+                        backgroundColor: [
+                            'rgba(96, 165, 250, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(139, 92, 246, 0.8)',
+                            'rgba(100, 116, 139, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { 
+                                color: '#94a3b8', 
+                                font: { size: 12 },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                    const percentage = total > 0 ? ((context.raw / total) * 100).toFixed(1) : '0';
+                                    return `${context.label}: ${context.raw} 次 (${percentage}%)`;
+                                }
+                            }
+                        },
+                        datalabels: {
+                            color: '#fff',
+                            font: { size: 11, weight: 'bold' },
+                            formatter: (value) => value > 0 ? value : ''
+                        }
+                    },
+                    cutout: '50%'
+                },
+                plugins: [ChartDataLabels]
+            });
+            
+            // 会话统计图表
+            const sessionsCtx = document.getElementById('sessions-chart').getContext('2d');
+            sessionsChart = new Chart(sessionsCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['活跃会话', '页面数量', '总事件'],
+                    datasets: [{
+                        data: [0, 0, 0],
+                        backgroundColor: [
+                            'rgba(96, 165, 250, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(245, 158, 11, 0.8)'
+                        ],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: { 
+                                color: '#94a3b8', 
+                                font: { size: 12 },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.label}: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        // 加载聚合数据
+        function loadAggregatedData() {
+            try {
+                if (typeof window.MonitorAggregator !== 'undefined') {
+                    aggregatedData = window.MonitorAggregator.getAggregatedData();
+                    
+                    console.log('📊 聚合数据已加载', {
+                        页面数量: aggregatedData.summary.pagesCount,
+                        事件总数: aggregatedData.summary.totalEvents
+                    });
+                    
+                    // 更新仪表板
+                    updateDashboard();
+                    
+                    // 显示成功消息
+                    showMessage('✅ 聚合数据加载成功', 'success');
+                } else {
+                    showMessage('❌ 聚合器未加载，请刷新页面', 'error');
+                }
+            } catch (error) {
+                console.error('加载聚合数据失败:', error);
+                showMessage('❌ 加载聚合数据失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 更新仪表板
+        function updateDashboard() {
+            updateStatsCards();
+            updatePagesChart();
+            updateEventsChart();
+            updateSessionsChart();
+            updatePageList();
+            updateMonitoredPages();
+        }
+        
+        // 更新统计卡片
+        function updateStatsCards() {
+            const container = document.getElementById('aggregated-stats');
+            if (!container) return;
+            
+            const summary = aggregatedData.summary;
+            
+            container.innerHTML = `
+                <div class="stat-card">
+                    <h3>总事件数</h3>
+                    <div class="stat-value">${summary.totalEvents}</div>
+                    <div class="stat-subtitle">所有页面的事件总数</div>
+                </div>
+                <div class="stat-card">
+                    <h3>监控页面数</h3>
+                    <div class="stat-value">${summary.pagesCount}</div>
+                    <div class="stat-subtitle">已收集数据的页面数量</div>
+                </div>
+                <div class="stat-card">
+                    <h3>唯一会话数</h3>
+                    <div class="stat-value">${summary.uniqueSessions.length}</div>
+                    <div class="stat-subtitle">不同用户的会话数量</div>
+                </div>
+                <div class="stat-card">
+                    <h3>页面访问数</h3>
+                    <div class="stat-value">${summary.totalPageViews}</div>
+                    <div class="stat-subtitle">页面访问记录总数</div>
+                </div>
+            `;
+        }
+        
+        // 更新页面事件分布图表
+        function updatePagesChart() {
+            if (!pagesChart) return;
+            
+            const pages = aggregatedData.pages;
+            const pageUrls = Object.keys(pages);
+            
+            // 获取事件最多的前10个页面
+            const topPages = pageUrls
+                .map(url => ({
+                    url: url.replace('https://helloliying.github.io/knowledge-planet/', '/'),
+                    count: pages[url]?.data?.events?.length || 0
+                }))
+                .sort((a, b) => b.count - a.count)
+                .slice(0, 10);
+            
+            // 更新图表数据
+            pagesChart.data.labels = topPages.map(page => 
+                page.url.length > 30 ? page.url.substring(0, 30) + '...' : page.url
+            );
+            pagesChart.data.datasets[0].data = topPages.map(page => page.count);
+            
+            pagesChart.update('none');
+        }
+        
+        // 更新事件类型汇总图表
+        function updateEventsChart() {
+            if (!eventsChart) return;
+            
+            // 汇总所有页面的事件类型
+            const eventTypeCounts = {
+                '鼠标移动': 0,
+                '点击': 0,
+                '滚动': 0,
+                '页面访问': 0,
+                '其他': 0
+            };
+            
+            Object.values(aggregatedData.pages).forEach(pageData => {
+                const stats = pageData.data?.stats?.byType || {};
+                
+                eventTypeCounts['鼠标移动'] += stats['mousemove'] || 0;
+                eventTypeCounts['点击'] += stats['click'] || 0;
+                eventTypeCounts['滚动'] += stats['scroll'] || 0;
+                eventTypeCounts['页面访问'] += stats['pageview'] || 0;
+                eventTypeCounts['其他'] += (stats['pageleave'] || 0) + (stats['keypress'] || 0) + 
+                                         (stats['form'] || 0) + (stats['link'] || 0);
+            });
+            
+            eventsChart.data.datasets[0].data = [
+                eventTypeCounts['鼠标移动'],
+                eventTypeCounts['点击'],
+                eventTypeCounts['滚动'],
+                eventTypeCounts['页面访问'],
+                eventTypeCounts['其他']
+            ];
+            
+            eventsChart.update('none');
+        }
+        
+        // 更新会话统计图表
+        function updateSessionsChart() {
+            if (!sessionsChart) return;
+            
+            const summary = aggregatedData.summary;
+            
+            sessionsChart.data.datasets[0].data = [
+                summary.uniqueSessions.length,
+                summary.pagesCount,
+                summary.totalEvents
+            ];
+            
+            sessionsChart.update('none');
+        }
+        
+        // 更新页面列表
+        function updatePageList() {
+            const container = document.getElementById('page-list');
+            if (!container) return;
+            
+            const pages = aggregatedData.pages;
+            const pageUrls = Object.keys(pages);
+            
+            if (pageUrls.length === 0) {
+                container.innerHTML = '<p style="color: #94a3b8; padding: 1rem;">暂无页面监控数据</p>';
+                return;
+            }
+            
+            // 按事件数量排序
+            const sortedPages = pageUrls
+                .map(url => ({
+                    url,
+                    data: pages[url]
+                }))
+                .sort((a, b) => (b.data?.data?.events?.length || 0) - (a.data?.data?.events?.length || 0));
+            
+            let html = '';
+            sortedPages.forEach((page, index) => {
+                const shortUrl = page.url.replace('https://helloliying.github.io/knowledge-planet/', '/');
+                const eventCount = page.data?.data?.events?.length || 0;
+                const sessionId = page.data?.data?.session?.id || '无';
+                
+                html += `
+                    <div class="page-item">
+                        <div class="page-url">${shortUrl}</div>
+                        <div class="page-stats">
+                            <span>事件数量: ${eventCount}</span>
+                            <span>会话ID: ${sessionId.substring(0, 8)}...</span>
+                            <span>最后更新: ${page.data.timestamp ? new Date(page.data.timestamp).toLocaleTimeString() : '未知'}</span>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // 更新监控页面列表
+        function updateMonitoredPages() {
+            const container = document.getElementById('monitored-pages');
+            if (!container) return;
+            
+            if (typeof window.MonitorAggregator !== 'undefined') {
+                const pages = window.MonitorAggregator.getPageList();
+                
+                let html = '';
+                pages.forEach((page, index) => {
+                    const shortUrl = page.url.replace('https://helloliying.github.io/knowledge-planet/', '/');
+                    html += `<span class="event-type-badge">${shortUrl}: ${page.eventCount}</span>`;
+                });
+                
+                container.innerHTML = html || '<p style="color: #94a3b8;">暂无页面数据</p>';
+            }
+        }
+        
+        // 显示消息（无弹窗版本）
+        function showMessage(message, type = 'info') {
+            const container = document.getElementById('status-container');
+            if (!container) return;
+            
+            const messageId = 'msg-' + Date.now();
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const messageCard = document.createElement('div');
+            messageCard.className = `status-card ${type}`;
+            messageCard.id = messageId;
+            messageCard.innerHTML = `
+                <div class="status-icon">${icons[type] || icons.info}</div>
+                <div class="status-content">${message}</div>
+                <button class="status-close" onclick="removeMessage('${messageId}')">×</button>
+            `;
+            
+            // 添加到容器顶部
+            container.insertBefore(messageCard, container.firstChild);
+            
+            // 自动移除（5秒后）
+            setTimeout(() => {
+                removeMessage(messageId);
+            }, 5000);
+            
+            // 限制最多显示5条消息
+            const messages = container.children;
+            if (messages.length > 5) {
+                for (let i = 5; i < messages.length; i++) {
+                    messages[i].remove();
+                }
+            }
+        }
+        
+        // 移除消息
+        function removeMessage(messageId) {
+            const message = document.getElementById(messageId);
+            if (message) {
+                message.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => {
+                    if (message.parentNode) {
+                        message.remove();
+                    }
+                }, 300);
+            }
+        }
+        
+        // 触发数据聚合
+        function triggerAggregation() {
+            if (typeof window.MonitorAggregator !== 'undefined') {
+                window.MonitorAggregator.triggerAggregation();
+                setTimeout(() => {
+                    loadAggregatedData();
+                    showMessage('✅ 数据聚合完成', 'success');
+                }, 500);
+            } else {
+                showMessage('❌ 聚合器未加载', 'error');
+            }
+        }
+        
+        // 导出聚合数据
+        function exportAggregatedData() {
+            if (typeof window.MonitorAggregator !== 'undefined') {
+                const data = window.MonitorAggregator.exportAggregatedData();
+                const preview = document.getElementById('data-preview');
+                if (preview) {
+                    preview.textContent = data;
+                    preview.scrollTop = 0;
+                }
+                
+                navigator.clipboard.writeText(data).then(() => {
+                    showMessage('✅ 聚合数据已复制到剪贴板', 'success');
+                }).catch(err => {
+                    showMessage('❌ 复制失败: ' + err.message, 'error');
+                });
+            }
+        }
+        
+        // 下载聚合数据文件
+        function downloadAggregatedData() {
+            if (typeof window.MonitorAggregator !== 'undefined') {
+                const data = window.MonitorAggregator.exportAggregatedData();
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `website-monitor-aggregated-${new Date().toISOString().slice(0,10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showMessage('✅ 聚合数据文件已下载', 'success');
+            }
+        }
+        
+        // 清空聚合数据
+        function clearAggregatedData() {
+            // 创建自定义确认对话框
+            const confirmDialog = document.createElement('div');
+            confirmDialog.className = 'status-card warning';
+            confirmDialog.style.position = 'fixed';
+            confirmDialog.style.top = '50%';
+            confirmDialog.style.left = '50%';
+            confirmDialog.style.transform = 'translate(-50%, -50%)';
+            confirmDialog.style.zIndex = '1001';
+            confirmDialog.style.maxWidth = '400px';
+            confirmDialog.innerHTML = `
+                <div class="status-icon">⚠️</div>
+                <div class="status-content">
+                    <h4 style="margin-bottom: 0.5rem;">确定要清空所有聚合数据吗？</h4>
+                    <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1rem;">此操作不可撤销，所有页面的聚合数据都会被清除。</p>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="confirmClearAggregatedData()" class="btn btn-danger" style="padding: 0.5rem 1rem;">确认清空</button>
+                        <button onclick="cancelClearAggregatedData()" class="btn btn-secondary" style="padding: 0.5rem 1rem;">取消</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(confirmDialog);
+            
+            // 全局确认函数
+            window.confirmClearAggregatedData = function() {
+                if (typeof window.MonitorAggregator !== 'undefined') {
+                    window.MonitorAggregator.clearAggregatedData();
+                }
+                
+                aggregatedData = {
+                    pages: {},
+                    summary: {
+                        totalEvents: 0,
+                        totalPageViews: 0,
+                        uniqueSessions: [],
+                        pagesCount: 0
+                    }
+                };
+                
+                updateDashboard();
+                document.getElementById('data-preview').textContent = '聚合数据已清空';
+                document.body.removeChild(confirmDialog);
+                
+                showMessage('🗑️ 所有聚合数据已清空', 'success');
+                delete window.confirmClearAggregatedData;
+                delete window.cancelClearAggregatedData;
+            };
+            
+            window.cancelClearAggregatedData = function() {
+                document.body.removeChild(confirmDialog);
+                delete window.confirmClearAggregatedData;
+                delete window.cancelClearAggregatedData;
+            };
+        }
+        
+        // 刷新仪表板
+        function refreshDashboard() {
+            loadAggregatedData();
+            showMessage('🔄 仪表板已刷新', 'info');
+        }
+        
+        // 启动实时更新
+        function startLiveUpdates() {
+            if (updateInterval) clearInterval(updateInterval);
+            updateInterval = setInterval(loadAggregatedData, 10000); // 每10秒更新一次
+        }
+        
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
