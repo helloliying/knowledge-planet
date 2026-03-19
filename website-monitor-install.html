@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网站监控安装指南 - 知识星球</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 3rem 0;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #60a5fa, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .header p {
+            color: #94a3b8;
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .step-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid #334155;
+            transition: transform 0.3s;
+        }
+        
+        .step-card:hover {
+            transform: translateY(-5px);
+            border-color: #60a5fa;
+        }
+        
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        
+        .step-title {
+            display: inline-block;
+            font-size: 1.5rem;
+            color: #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        .step-content {
+            margin-top: 1.5rem;
+            color: #cbd5e1;
+        }
+        
+        .code-block {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Consolas', monospace;
+            font-size: 0.95rem;
+            overflow-x: auto;
+            color: #e2e8f0;
+        }
+        
+        .code-comment {
+            color: #94a3b8;
+        }
+        
+        .code-keyword {
+            color: #60a5fa;
+        }
+        
+        .code-string {
+            color: #10b981;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.3s;
+            text-decoration: none;
+            margin-top: 1rem;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .btn-secondary {
+            background: #334155;
+            margin-left: 0.5rem;
+        }
+        
+        .btn-secondary:hover {
+            background: #475569;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .feature-card {
+            background: #1a2235;
+            border-radius: 8px;
+            padding: 1.5rem;
+            border-left: 4px solid #60a5fa;
+        }
+        
+        .feature-card h3 {
+            color: #60a5fa;
+            margin-bottom: 0.5rem;
+        }
+        
+        .feature-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        
+        .warning-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .warning-box h3 {
+            color: #f59e0b;
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-box {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+        }
+        
+        .success-box h3 {
+            color: #10b981;
+            margin-bottom: 0.5rem;
+        }
+        
+        .link-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+        
+        .link-list li {
+            padding: 0.5rem 0;
+        }
+        
+        .link-list a {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+        
+        .link-list a:hover {
+            text-decoration: underline;
+        }
+        
+        .link-list li:before {
+            content: "🔗 ";
+            margin-right: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.2rem;
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌐 网站行为监控系统</h1>
+            <p>安装指南：监控 https://helloliying.github.io/knowledge-planet/ 及其所有下级页面的用户行为</p>
+        </div>
+        
+        <div class="warning-box">
+            <h3>⚠️ 重要提示</h3>
+            <p>本监控系统用于收集用户行为数据，请确保遵守相关隐私法律法规，并在网站隐私政策中说明数据收集情况。</p>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-title">下载监控脚本</div>
+            <div class="step-content">
+                <p>首先，下载网站监控脚本文件：</p>
+                <div class="code-block">
+                    <span class="code-comment">// 监控脚本文件</span><br>
+                    <span class="code-keyword">文件位置</span>: /static/js/website-monitor.js<br>
+                    <span class="code-keyword">大小</span>: ~13KB<br>
+                    <span class="code-keyword">功能</span>: 收集鼠标移动、点击、滚动、页面访问等行为数据
+                </div>
+                <a href="https://raw.githubusercontent.com/helloliying/knowledge-planet/gh-pages/js/website-monitor.js" class="btn" target="_blank">📥 下载监控脚本</a>
+            </div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-title">添加到网站页面</div>
+            <div class="step-content">
+                <p>将以下代码添加到网站所有页面的 <code>&lt;head&gt;</code> 标签中：</p>
+                <div class="code-block">
+                    <span class="code-comment">&lt;!-- 网站行为监控脚本 --&gt;</span><br>
+                    <span class="code-keyword">&lt;script</span> <span class="code-string">src="/knowledge-planet/js/website-monitor.js"</span><span class="code-keyword">&gt;&lt;/script&gt;</span>
+                </div>
+                
+                <p><strong>对于Hugo网站，可以添加到主题模板中：</strong></p>
+                <div class="code-block">
+                    <span class="code-comment">{{/* 在 layouts/_default/baseof.html 或类似模板文件中 */}}</span><br>
+                    &lt;head&gt;<br>
+                    &nbsp;&nbsp;<span class="code-comment">&lt;!-- 其他head内容 --&gt;</span><br>
+                    &nbsp;&nbsp;<span class="code-keyword">&lt;script</span> <span class="code-string">src="{{ "js/website-monitor.js" | absURL }}"</span><span class="code-keyword">&gt;&lt;/script&gt;</span><br>
+                    &lt;/head&gt;
+                </div>
+            </div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-title">访问监控仪表板</div>
+            <div class="step-content">
+                <p>安装完成后，访问监控仪表板查看收集的数据：</p>
+                <div class="code-block">
+                    <span class="code-comment">// 监控仪表板地址</span><br>
+                    https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html
+                </div>
+                <a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" class="btn" target="_blank">📊 打开监控仪表板</a>
+                <a href="https://helloliying.github.io/knowledge-planet/security-dashboard-enhanced.html" class="btn btn-secondary" target="_blank">🔒 打开增强版仪表板</a>
+            </div>
+        </div>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>📈 全面监控</h3>
+                <p>监控鼠标移动、点击、滚动、页面访问、表单交互、链接点击等全方位用户行为</p>
+            </div>
+            <div class="feature-card">
+                <h3>🌍 跨页面跟踪</h3>
+                <p>跟踪用户在整个网站的所有页面间的行为，形成完整的用户旅程</p>
+            </div>
+            <div class="feature-card">
+                <h3>🔒 本地存储</h3>
+                <p>数据存储在用户的浏览器本地存储中，保护用户隐私</p>
+            </div>
+            <div class="feature-card">
+                <h3>📊 丰富可视化</h3>
+                <p>提供事件分布、页面访问统计、鼠标轨迹热力图等多种可视化图表</p>
+            </div>
+            <div class="feature-card">
+                <h3>💾 数据导出</h3>
+                <p>支持JSON格式数据导出和下载，便于进一步分析</p>
+            </div>
+            <div class="feature-card">
+                <h3>⚡ 轻量高效</h3>
+                <p>监控脚本仅13KB，对网站性能影响极小</p>
+            </div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-title">🔧 配置选项</div>
+            <div class="step-content">
+                <p>监控脚本支持以下配置选项（在 website-monitor.js 中修改）：</p>
+                <div class="code-block">
+                    <span class="code-keyword">const</span> CONFIG = {<br>
+                    &nbsp;&nbsp;<span class="code-comment">// 基础配置</span><br>
+                    &nbsp;&nbsp;enabled: <span class="code-keyword">true</span>, <span class="code-comment">// 是否启用监控</span><br>
+                    &nbsp;&nbsp;sampleInterval: <span class="code-keyword">50</span>, <span class="code-comment">// 采样间隔(ms)</span><br>
+                    &nbsp;&nbsp;maxRecords: <span class="code-keyword">10000</span>, <span class="code-comment">// 最大记录数</span><br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-comment">// 存储配置</span><br>
+                    &nbsp;&nbsp;storageKey: <span class="code-string">'ks_website_monitor'</span>,<br>
+                    &nbsp;&nbsp;autoSave: <span class="code-keyword">true</span>,<br>
+                    &nbsp;&nbsp;saveInterval: <span class="code-keyword">5000</span>, <span class="code-comment">// 自动保存间隔(ms)</span><br>
+                    <br>
+                    &nbsp;&nbsp;<span class="code-comment">// 调试</span><br>
+                    &nbsp;&nbsp;debug: <span class="code-keyword">false</span>, <span class="code-comment">// 启用调试日志</span><br>
+                    &nbsp;&nbsp;logPrefix: <span class="code-string">'[网站监控]'</span><br>
+                    };
+                </div>
+            </div>
+        </div>
+        
+        <div class="step-card">
+            <div class="step-title">📋 相关链接</div>
+            <div class="step-content">
+                <ul class="link-list">
+                    <li><a href="https://helloliying.github.io/knowledge-planet/website-monitor-dashboard.html" target="_blank">网站监控仪表板</a> - 查看所有页面的汇总数据</li>
+                    <li><a href="https://helloliying.github.io/knowledge-planet/security-dashboard-enhanced.html" target="_blank">增强版安全仪表板</a> - 单个页面的详细监控</li>
+                    <li><a href="https://helloliying.github.io/knowledge-planet/security-dashboard-optimized.html" target="_blank">优化版仪表板</a> - 优化的可视化效果</li>
+                    <li><a href="https://helloliying.github.io/knowledge-planet/" target="_blank">知识星球首页</a> - 主网站页面</li>
+                    <li><a href="https://github.com/helloliying/knowledge-planet" target="_blank">GitHub仓库</a> - 查看源代码</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="success-box">
+            <h3>✅ 安装完成</h3>
+            <p>恭喜！网站行为监控系统已成功部署。用户访问网站时，行为数据会被自动收集，并可以在监控仪表板中查看。</p>
+            <p>建议定期检查收集的数据，确保监控系统正常工作，并根据需要调整配置。</p>
+        </div>
+        
+        <div style="text-align: center; margin-top: 3rem; padding: 2rem; color: #94a3b8; border-top: 1px solid #334155;">
+            <p>知识星球网站行为监控系统 | 版本: 1.0.0 | 最后更新: 2026-03-19</p>
+            <p>如需帮助或发现问题，请查看GitHub仓库或联系管理员</p>
+        </div>
+    </div>
+    
+    <script>
+        // 简单的页面交互
+        document.addEventListener('DOMContentLoaded', function() {
+            // 为所有代码块添加复制功能
+            const codeBlocks = document.querySelectorAll('.code-block');
+            codeBlocks.forEach(block => {
+                block.style.position = 'relative';
+                block.insertAdjacentHTML('beforeend', 
+                    '<button class="copy-btn" style="position:absolute;top:10px;right:10px;background:#334155;color:#94a3b8;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;font-size:12px;">复制</button>'
+                );
+                
+                const copyBtn = block.querySelector('.copy-btn');
+                copyBtn.addEventListener('click', function() {
+                    const text = block.innerText.replace('复制', '').trim();
+                    navigator.clipboard.writeText(text).then(() => {
+                        const originalText = copyBtn.textContent;
+                        copyBtn.textContent = '已复制!';
+                        copyBtn.style.background = '#10b981';
+                        copyBtn.style.color = 'white';
+                        
+                        setTimeout(() => {
+                            copyBtn.textContent = originalText;
+                            copyBtn.style.background = '#334155';
+                            copyBtn.style.color = '#94a3b8';
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
