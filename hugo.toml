@@ -1,7 +1,7 @@
 baseURL = 'https://helloliying.github.io/knowledge-planet/'
 languageCode = 'zh-CN'
 title = '知识星球'
-theme = 'knowledge'
+# theme = 'knowledge'  # 注释掉主题配置，使用根目录的layouts
 defaultContentLanguage = 'zh-cn'
 hasCJKLanguage = true
 enableRobotsTXT = true
