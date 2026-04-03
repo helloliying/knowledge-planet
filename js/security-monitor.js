@@ -9,32 +9,26 @@
     
     // 配置
     const CONFIG = {
-        // 是否启用完整监控（试验环境启用完整记录）
-        enabled: true,
+        // 是否启用完整监控（需要用户同意）
+        enabled: false,
         
-        // 采样率（1表示记录所有事件）
-        samplingRate: 1.0,
+        // 采样率（0-1），1表示记录所有事件
+        samplingRate: 0.1,
         
-        // 最大记录数（试验环境可增加）
-        maxRecords: 5000,
+        // 最大记录数
+        maxRecords: 1000,
         
-        // 事件类型（增加更多事件类型）
-        eventTypeList: ['mousemove', 'mousedown', 'mouseup', 'click', 'dblclick', 'scroll', 'keydown', 'keyup', 'focus', 'blur', 'input', 'change', 'submit'],
+        // 事件类型
+        eventTypes: ['mousemove', 'mousedown', 'scroll', 'keydown'],
         
-        // 数据发送端点（试验环境可配置本地测试端点）
+        // 数据发送端点（需要后端支持）
         endpoint: null, // '/api/security/logs'
         
         // 本地存储键名
-        storageKey: 'ks_full_behavior_logs',
+        storageKey: 'ks_security_logs',
         
-        // 清理间隔（毫秒）（试验环境可延长）
-        cleanupInterval: 60000,
-        
-        // 详细日志（试验环境启用）
-        verboseLogging: true,
-        
-        // 记录敏感数据（试验环境可配置）
-        recordSensitiveData: false
+        // 清理间隔（毫秒）
+        cleanupInterval: 30000
     };
     
     // 数据存储
